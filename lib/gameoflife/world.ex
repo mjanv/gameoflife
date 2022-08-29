@@ -15,4 +15,13 @@ defmodule Gameoflife.World do
       rows: rows
     }
   end
+
+  def cells(%World{columns: n, rows: m} = world) do
+    for i <- 1..n do
+      for j <- 1..m do
+        %Cell{world: world, x: i, y: j}
+      end
+    end
+    |> List.flatten()
+  end
 end

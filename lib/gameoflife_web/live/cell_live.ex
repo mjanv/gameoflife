@@ -21,9 +21,4 @@ defmodule GameoflifeWeb.CellLive do
 
     {:noreply, assign(socket, :status, status)}
   end
-
-  def handle_info({:hello, message}, socket) do
-    IO.inspect(message)
-    {:noreply, socket}
-  end
 end

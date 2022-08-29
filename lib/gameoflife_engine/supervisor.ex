@@ -7,12 +7,10 @@ defmodule GameoflifeEngine.Supervisor do
 
   @impl true
   def init(_init_arg) do
-    children =
-      [
-        {Registry, keys: :unique, name: GameoflifeEngine.Registry},
-        {DynamicSupervisor, strategy: :one_for_one, name: GameoflifeEngine.WorldSupervisor}
-      ]
-      |> IO.inspect()
+    children = [
+      {Registry, keys: :unique, name: GameoflifeEngine.Registry},
+      {DynamicSupervisor, strategy: :one_for_one, name: GameoflifeEngine.WorldSupervisor}
+    ]
 
     Supervisor.init(children, strategy: :one_for_one)
   end

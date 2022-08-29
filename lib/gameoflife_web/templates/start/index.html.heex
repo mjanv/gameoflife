@@ -10,7 +10,7 @@
         <div>
             <label for="rows" class="block text-sm font-medium text-gray-700">Rows</label>
             <select id="rows" name="rows" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                <%= for i <- 1..10 do %>
+                <%= for i <- [16] do %>
                     <option><%= i %></option>
                 <% end %>
             </select>
@@ -18,7 +18,7 @@
         <div>
             <label for="columns" class="block text-sm font-medium text-gray-700">Columns</label>
             <select id="columns" name="columns" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                <%= for i <- 1..10 do %>
+                <%= for i <- [16] do %>
                     <option><%= i %></option>
                 <% end %>
             </select>

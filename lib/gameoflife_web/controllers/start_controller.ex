@@ -7,9 +7,10 @@ defmodule GameoflifeWeb.StartController do
 
   def create(conn, %{"columns" => columns, "rows" => rows}) do
     world =
-      Gameoflife.World.new(columns, rows)
+      Gameoflife.World.new(String.to_integer(columns), String.to_integer(rows))
       |> GameoflifeEngine.World.start_world()
-      |> GameoflifeEngine.World.start_tick()
+      |> GameoflifeEngine.World.start_cells()
+      |> GameoflifeEngine.World.start_clock()
 
     conn
     |> put_flash(:info, "Starting world #{inspect(world.id)}")
