@@ -10,7 +10,18 @@ module.exports = {
     '../lib/*_web/**/*.*ex'
   ],
   theme: {
-    extend: {},
+    extend: {
+      gridTemplateColumns: {
+        '16': 'repeat(16, minmax(0, 1fr))',
+        '32': 'repeat(32, minmax(0, 1fr))',
+        '64': 'repeat(64, minmax(0, 1fr))',
+        '128': 'repeat(128, minmax(0, 1fr))',
+      },
+      padding: {
+        '1/2': '50%',
+        full: '100%',
+      },
+    },
   },
   plugins: [
     require('@tailwindcss/forms'),

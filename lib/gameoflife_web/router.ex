@@ -1,6 +1,8 @@
 defmodule GameoflifeWeb.Router do
   use GameoflifeWeb, :router
 
+  import Phoenix.LiveView.Router
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -10,28 +12,17 @@ defmodule GameoflifeWeb.Router do
     plug :put_secure_browser_headers
   end
 
-  pipeline :api do
-    plug :accepts, ["json"]
-  end
-
   scope "/", GameoflifeWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
+    get "/", StartController, :index
+    post "/", StartController, :create
+
+    live "/world/:id", WorldLive, :index
+    live "/world/:id/cell/:x/:y", CellLive, :index
+    live "/cell", CellLive, :index
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", GameoflifeWeb do
-  #   pipe_through :api
-  # end
-
-  # Enables LiveDashboard only for development
-  #
-  # If you want to use the LiveDashboard in production, you should put
-  # it behind authentication and allow only admins to access it.
-  # If your application does not have an admins-only section yet,
-  # you can use Plug.BasicAuth to set up some basic authentication
-  # as long as you are also using SSL (which you should anyway).
   if Mix.env() in [:dev, :test] do
     import Phoenix.LiveDashboard.Router
 

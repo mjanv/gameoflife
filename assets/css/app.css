@@ -4,6 +4,12 @@
 
 /* This file is for your main application CSS */
 
+.square {
+  width: 50%;
+  padding-bottom: 50%;
+  background-color: teal;
+}
+
 /* Alerts and form errors used by phx.new */
 .alert {
   padding: 15px;

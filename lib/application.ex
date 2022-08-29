@@ -6,9 +6,8 @@ defmodule Gameoflife.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      GameoflifeWeb.Telemetry,
-      {Phoenix.PubSub, name: Gameoflife.PubSub},
-      GameoflifeWeb.Endpoint
+      GameoflifeWeb.Supervisor,
+      GameoflifeEngine.Supervisor
     ]
 
     opts = [strategy: :one_for_one, name: Gameoflife.Supervisor]

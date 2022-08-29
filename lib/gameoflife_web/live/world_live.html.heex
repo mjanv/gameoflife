@@ -1,0 +1,11 @@
+<div class="max-w-screen-lg mx-auto p-4">
+  <div class="grid grid-cols-128 mt-4">
+    <%= for i <- 1..144 do %>
+      <%= link to: Routes.cell_path(@socket, :index) do  %>
+        <!--<%= live_render @socket, GameoflifeWeb.CellLive, id: i %>-->
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+<%= @t %>
