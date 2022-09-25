@@ -22,8 +22,3 @@ mix phx.server
 
 https://daily-dev-tips.com/posts/tailwind-css-responsive-square-divs/
 
-## Time estimation
-
-- Step 1: Project creation = 10 minutes.
-- Step 2: Tailwind = 10 minutes.
-- Step 3: Liveview for simple cell = 20 minutes.
