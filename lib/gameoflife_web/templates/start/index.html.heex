@@ -5,21 +5,13 @@
       <h2 class="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">Start a new world</h2>
     </div>
     <div class="mt-6">
-      <form action="#" method="POST" class="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8">
+      <form action="#" method="POST" class="grid grid-cols-1 gap-y-6 gap-x-8">
         <input type="hidden" name="_csrf_token" value={@token} />
         <div>
-            <label for="rows" class="block text-sm font-medium text-gray-700">Rows</label>
-            <select id="rows" name="rows" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+            <label for="rows" class="block text-xl font-medium text-gray-700">Size</label>
+            <select id="rows" name="rows" class="mt-2 block w-full pl-3 pr-10 py-2 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-l rounded-md">
                 <%= for i <- [4, 8, 16, 32, 64, 128, 256] do %>
                     <option><%= i %></option>
-                <% end %>
-            </select>
-        </div>
-        <div>
-            <label for="columns" class="block text-sm font-medium text-gray-700">Columns</label>
-            <select id="columns" name="columns" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                <%= for j <- [4, 8, 16, 32, 64, 128, 256] do %>
-                    <option><%= j %></option>
                 <% end %>
             </select>
         </div>

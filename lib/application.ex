@@ -7,12 +7,12 @@ defmodule Gameoflife.Application do
   def start(_type, _args) do
     children = [
       GameoflifeWeb.Supervisor,
-      GameoflifeEngine.Supervisor,
+      Gameoflife.Supervisor,
       {Cluster.Supervisor,
        [Application.get_env(:libcluster, :topologies) || [], [name: Gameoflife.ClusterSupervisor]]}
     ]
 
-    opts = [strategy: :one_for_one, name: Gameoflife.Supervisor]
+    opts = [strategy: :one_for_one, name: GameoflifeEngine.Supervisor]
     Supervisor.start_link(children, opts)
   end
 

@@ -1,4 +1,6 @@
 defmodule GameoflifeWeb.Supervisor do
+  @moduledoc false
+
   use Supervisor
 
   def start_link(init_arg) do
@@ -10,6 +12,7 @@ defmodule GameoflifeWeb.Supervisor do
     children = [
       GameoflifeWeb.Telemetry,
       {Phoenix.PubSub, name: Gameoflife.PubSub},
+      GameoflifeWeb.Presence,
       GameoflifeWeb.Endpoint
     ]
 

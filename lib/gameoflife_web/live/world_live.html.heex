@@ -1,10 +1,10 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
   <div class="max-w-3xl mx-auto">
-    Time: <%= @t %>
-
+    World <%= @world.id %> (<%= @world.rows %>x<%= @world.columns %>) - Time: <%= @t %>
     <button phx-click="stop">Stop</button>
+    <%= inspect(@world) %>
 
-    <div class="grid grid-cols-128 mt-4 border">
+    <div class={"grid grid-cols-16 mt-4 border"}>
       <%= for i <- 0..(@world.rows - 1) do %>
         <%= for j <- 0..(@world.columns - 1) do %>
           <div class={if Map.get(@grid, {i, j}), do: "o", else: "c"}></div>

@@ -1,7 +1,7 @@
 defmodule GameoflifeWeb.WorldLive do
   use GameoflifeWeb, :live_view
 
-  alias Gameoflife.Events.{Tick, Tock, On, Off}
+  alias Gameoflife.Events.{Off, On, Tick, Tock}
 
   def mount(%{"id" => id}, _args, socket) do
     if connected?(socket) do
@@ -31,7 +31,7 @@ defmodule GameoflifeWeb.WorldLive do
   end
 
   def handle_event("stop", _params, socket) do
-    GameoflifeEngine.Supervisor.stop_worlds()
+    Gameoflife.Supervisor.stop_worlds()
     {:noreply, socket}
   end
 end
