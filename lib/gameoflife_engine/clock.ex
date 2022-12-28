@@ -4,27 +4,43 @@ defmodule GameoflifeEngine.Clock do
   use GenServer
 
   alias Gameoflife.Clock
+  alias Gameoflife.Events.{Tick, Tock}
+
+  @every 1_000
 
   def start_link(args) do
     GenServer.start_link(__MODULE__, args, name: args[:via])
   end
 
   def init(args) do
-    Process.send_after(self(), :next, 1_000)
+    Process.send_after(self(), :tick, @every)
     {:ok, args[:clock]}
   end
 
-  def handle_info(:next, clock) do
-    Process.send_after(self(), :next, 1_000)
+  def handle_info(:tick, clock) do
+    Process.send_after(self(), :tick, @every)
+    Process.send_after(self(), :tock, 750)
 
-    clock =
-      clock
-      |> Clock.next()
-      |> Enum.map(fn e ->
-        Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> clock.world.id, e)
-        e
-      end)
-      |> Enum.reduce(clock, fn e, c -> Clock.handle(c, e) end)
+    for i <- 0..(clock.world.rows - 1) do
+      for j <- 0..(clock.world.columns - 1) do
+        Gameoflife.Cell.ping(clock.world.id, i, j, %Tick{t: clock.t + 1})
+      end
+    end
+
+    Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> clock.world.id, %Tick{t: clock.t + 1})
+
+    {:noreply, %{clock | t: clock.t + 1}}
+  end
+
+  def handle_info(:tock, clock) do
+    for i <- 0..(clock.world.rows - 1) do
+      for j <- 0..(clock.world.columns - 1) do
+        Gameoflife.Cell.ping(clock.world.id, i, j, %Tock{t: clock.t + 1})
+      end
+    end
+
+    Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> clock.world.id, %Tock{t: clock.t + 1})
+
 
     {:noreply, clock}
   end

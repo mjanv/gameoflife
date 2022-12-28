@@ -6,12 +6,16 @@ defmodule GameoflifeEngine.World do
   alias Gameoflife.{Cell, Clock, World}
 
   def start_link(args) do
-    DynamicSupervisor.start_link(__MODULE__, args, name: args[:id])
+    DynamicSupervisor.start_link(__MODULE__, args, name: args[:name])
   end
 
   @impl true
   def init(_args) do
     DynamicSupervisor.init(strategy: :one_for_one)
+  end
+
+  def handle_call(:state, _from, state) do
+    {:reply, state, state}
   end
 
   def start_clock({pid, %World{id: id} = world}) do
@@ -50,7 +54,10 @@ defmodule GameoflifeEngine.World do
     {:ok, pid} =
       DynamicSupervisor.start_child(
         GameoflifeEngine.WorldSupervisor,
-        {__MODULE__, name: {:via, Registry, {GameoflifeEngine.Registry, "world-" <> id}}}
+        {__MODULE__, [
+          id: id,
+          name: {:via, Registry, {GameoflifeEngine.Registry, "world-" <> id}}
+        ]}
       )
 
     {pid, world}

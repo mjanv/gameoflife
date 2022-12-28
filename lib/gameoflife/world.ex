@@ -10,16 +10,16 @@ defmodule Gameoflife.World do
 
   def new(columns, rows) do
     %World{
-      id: id(5),
+      id: id(4),
       columns: columns,
       rows: rows
     }
   end
 
   def cells(%World{columns: n, rows: m} = world) do
-    for i <- 1..n do
-      for j <- 1..m do
-        %Cell{world: world, x: i, y: j}
+    for i <- 0..(n - 1) do
+      for j <- 0..(m - 1) do
+        %Cell{world: world, x: i, y: j, t: 0, neighbors: 0, alive?: Enum.random([true, false])}
       end
     end
     |> List.flatten()

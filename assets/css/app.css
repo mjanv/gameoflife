@@ -10,6 +10,17 @@
   background-color: teal;
 }
 
+
+@layer base {
+  .o {
+    @apply w-full pb-full bg-gray-900;
+  }
+
+  .c {
+    @apply w-full pb-full bg-gray-100;
+  }
+}
+
 /* Alerts and form errors used by phx.new */
 .alert {
   padding: 15px;

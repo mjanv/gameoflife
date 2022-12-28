@@ -10,7 +10,7 @@
         <div>
             <label for="rows" class="block text-sm font-medium text-gray-700">Rows</label>
             <select id="rows" name="rows" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                <%= for i <- [16] do %>
+                <%= for i <- [4, 8, 16, 32, 64, 128, 256] do %>
                     <option><%= i %></option>
                 <% end %>
             </select>
@@ -18,8 +18,8 @@
         <div>
             <label for="columns" class="block text-sm font-medium text-gray-700">Columns</label>
             <select id="columns" name="columns" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                <%= for i <- [16] do %>
-                    <option><%= i %></option>
+                <%= for j <- [4, 8, 16, 32, 64, 128, 256] do %>
+                    <option><%= j %></option>
                 <% end %>
             </select>
         </div>
@@ -28,5 +28,14 @@
         </div>
       </form>
     </div>
+    <div class="mt-10 text-center">
+      <h2 class="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl"><%= @count %> currents worlds</h2>
+    </div>
+
+    <ul>
+      <%= for world <- @worlds do %>
+        <li><%= inspect(world) %></li>
+      <% end %>
+    </ul>
   </div>
 </div>

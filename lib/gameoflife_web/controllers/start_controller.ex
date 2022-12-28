@@ -2,7 +2,10 @@ defmodule GameoflifeWeb.StartController do
   use GameoflifeWeb, :controller
 
   def index(conn, _params) do
-    worlds = render(conn, "index.html", token: get_csrf_token())
+
+    count = GameoflifeEngine.Supervisor.count_worlds()
+    worlds = GameoflifeEngine.Supervisor.list_worlds()
+    render(conn, "index.html", token: get_csrf_token(), count: count, worlds: worlds)
   end
 
   def create(conn, %{"columns" => columns, "rows" => rows}) do

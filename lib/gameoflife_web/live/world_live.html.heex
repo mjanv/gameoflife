@@ -2,12 +2,12 @@
   <div class="max-w-3xl mx-auto">
     Time: <%= @t %>
 
-    <div class="grid grid-cols-32 mt-4">
-      <%= for i <- 1..32 do %>
-        <%= for j <- 1..32 do %>
-          <%= link to: Routes.cell_path(@socket, :index) do  %>
-            <%= live_render @socket, GameoflifeWeb.CellLive, id: to_string(i) <> "-" <> to_string(j) %>
-          <% end %>
+    <button phx-click="stop">Stop</button>
+
+    <div class="grid grid-cols-128 mt-4 border">
+      <%= for i <- 0..(@world.rows - 1) do %>
+        <%= for j <- 0..(@world.columns - 1) do %>
+          <div class={if Map.get(@grid, {i, j}), do: "o", else: "c"}></div>
         <% end %>
       <% end %>
     </div>
