@@ -37,5 +37,15 @@
         <li><%= inspect(world) %></li>
       <% end %>
     </ul>
+
+    <div class="mt-10 text-center">
+      <h2 class="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">Nodes</h2>
+    </div>
+
+    <ul>
+      <%= for node <- @nodes do %>
+        <li><%= inspect(node) %></li>
+      <% end %>
+    </ul>
   </div>
 </div>

@@ -27,32 +27,36 @@ defmodule GameoflifeEngine.Cell do
   end
 
   def handle_cast(%Tock{t: t}, cell) do
-    alive? = case {cell.alive?, cell.neighbors} do
-      {true, 2} -> true
-      {_, 3} -> true
-      _ -> false
-    end
+    alive? =
+      case {cell.alive?, cell.neighbors} do
+        {true, 2} -> true
+        {_, 3} -> true
+        _ -> false
+      end
 
-    :ok = case {cell.alive?, alive?} do
-      {false, true} ->
-        event = %On{t: cell.t, x: cell.x, y: cell.y}
-        Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> cell.world.id, event)
-      {true, false} ->
-        event = %Off{t: cell.t, x: cell.x, y: cell.y}
-        Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> cell.world.id, event)
-      _ ->
-        :ok
-    end
+    :ok =
+      case {cell.alive?, alive?} do
+        {false, true} ->
+          event = %On{t: cell.t, x: cell.x, y: cell.y}
+          Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> cell.world.id, event)
+
+        {true, false} ->
+          event = %Off{t: cell.t, x: cell.x, y: cell.y}
+          Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> cell.world.id, event)
+
+        _ ->
+          :ok
+      end
 
     {:noreply, %{cell | t: t, neighbors: 0, alive?: alive?}}
   end
 
-
   def handle_cast(%Ping{t: t}, cell) do
-    neighbors = cond do
-      t == cell.t -> cell.neighbors + 1
-      true -> cell.neighbors
-    end
+    neighbors =
+      cond do
+        t == cell.t -> cell.neighbors + 1
+        true -> cell.neighbors
+      end
 
     {:noreply, %{cell | neighbors: neighbors}}
   end

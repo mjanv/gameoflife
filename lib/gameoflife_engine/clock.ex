@@ -41,7 +41,6 @@ defmodule GameoflifeEngine.Clock do
 
     Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> clock.world.id, %Tock{t: clock.t + 1})
 
-
     {:noreply, clock}
   end
 end

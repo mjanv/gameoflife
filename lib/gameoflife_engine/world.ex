@@ -54,10 +54,11 @@ defmodule GameoflifeEngine.World do
     {:ok, pid} =
       DynamicSupervisor.start_child(
         GameoflifeEngine.WorldSupervisor,
-        {__MODULE__, [
-          id: id,
-          name: {:via, Registry, {GameoflifeEngine.Registry, "world-" <> id}}
-        ]}
+        {__MODULE__,
+         [
+           id: id,
+           name: {:via, Registry, {GameoflifeEngine.Registry, "world-" <> id}}
+         ]}
       )
 
     {pid, world}
