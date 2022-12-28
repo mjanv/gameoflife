@@ -17,7 +17,7 @@ defmodule Gameoflife.MixProject do
   def application do
     [
       mod: {Gameoflife.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:os_mon, :logger, :runtime_tools]
     ]
   end
 

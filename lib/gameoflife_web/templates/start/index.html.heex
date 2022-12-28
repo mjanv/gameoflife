@@ -2,7 +2,10 @@
 <div class="bg-white py-16 px-4 overflow-hidden sm:px-6 lg:px-8 lg:py-24">
   <div class="relative max-w-xl mx-auto">
     <div class="text-center">
-      <h2 class="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">Start a new world</h2>
+      <h2 class="text-4xl font-extrabold tracking-tight text-gray-900">👾 Distributed Game of Life</h2>
+    </div>
+    <div class="mt-12 text-center">
+      <h2 class="text-3xl font-extrabold tracking-tight text-gray-900">🚀 Start a new world</h2>
     </div>
     <div class="mt-6">
       <form action="#" method="POST" class="grid grid-cols-1 gap-y-6 gap-x-8">
@@ -21,22 +24,51 @@
       </form>
     </div>
     <div class="mt-10 text-center">
-      <h2 class="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl"><%= @count %> currents worlds</h2>
+      <h2 class="text-3xl font-extrabold tracking-tight text-gray-900"> <%= length(@nodes) %> Erlang nodes</h2>
     </div>
 
-    <ul>
-      <%= for world <- @worlds do %>
-        <li><%= inspect(world) %></li>
+    <ul role="list" class="divide-y divide-gray-200">
+      <%= for  node <- @nodes do %>
+        <li class="py-4 flex">
+          <div class="ml-3">
+            <p class="text-l font-medium text-gray-900"><%= inspect(node) %></p>
+          </div>
+        </li>
       <% end %>
     </ul>
 
-    <div class="mt-10 text-center">
-      <h2 class="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">Nodes</h2>
+    <div class="mt-5 relative">
+      <div class="absolute inset-0 flex items-center" aria-hidden="true">
+        <div class="w-full border-t border-gray-300"></div>
+      </div>
     </div>
 
-    <ul>
-      <%= for node <- @nodes do %>
-        <li><%= inspect(node) %></li>
+    <div class="mt-10 text-center">
+      <h2 class="text-3xl font-extrabold tracking-tight text-gray-900">📺 <%= map_size(@users) %> viewers online</h2>
+    </div>
+
+    <div class="mt-5 relative">
+      <div class="absolute inset-0 flex items-center" aria-hidden="true">
+        <div class="w-full border-t border-gray-300"></div>
+      </div>
+    </div>
+
+    <div class="mt-10 text-center">
+      <h2 class="text-3xl font-extrabold tracking-tight text-gray-900">🌎 <%= map_size(@worlds) %> worlds online</h2>
+      <h2 class="text-2xl font-normal tracking-tight text-gray-500">🦠 <%= Enum.sum(Enum.map(@worlds, fn {_, m} -> m.world.rows * m.world.columns end)) %> cells living</h2>
+    </div>
+
+    <ul role="list" class="divide-y divide-gray-200">
+      <%= for {id, meta} <- @worlds do %>
+        <li class="py-4 flex">
+          <span class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-gray-500">
+            <span class="text-lg font-medium leading-none text-white"><%= id %></span>
+          </span>
+          <div class="ml-3">
+           <%= link "World #{id} - 🦠 #{meta.world.rows * meta.world.columns} cells (#{meta.world.rows} x #{meta.world.columns})", class: "text-l font-medium text-gray-900", to: Routes.world_path(@conn, :index, id) %>
+           <p class="text-m text-gray-700">Online at <%= DateTime.truncate(meta.online_at, :second) %></p>
+          </div>
+        </li>
       <% end %>
     </ul>
   </div>

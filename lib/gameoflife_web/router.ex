@@ -19,11 +19,9 @@ defmodule GameoflifeWeb.Router do
     post "/", StartController, :create
 
     live "/world/:id", WorldLive, :index
-    live "/world/:id/cell/:x/:y", CellLive, :index
-    live "/cell", CellLive, :index
   end
 
-  if Mix.env() in [:dev, :test] do
+  if Mix.env() in [:dev, :test, :prod] do
     import Phoenix.LiveDashboard.Router
 
     scope "/" do

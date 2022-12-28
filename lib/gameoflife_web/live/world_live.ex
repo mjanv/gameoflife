@@ -3,10 +3,20 @@ defmodule GameoflifeWeb.WorldLive do
 
   alias Gameoflife.Events.{Off, On, Tick, Tock}
 
+  defp id(n) do
+    for _ <- 1..n, into: "", do: <<Enum.at('0123456789', :crypto.rand_uniform(0, 10))>>
+  end
+
   def mount(%{"id" => id}, _args, socket) do
     if connected?(socket) do
       Phoenix.PubSub.subscribe(Gameoflife.PubSub, "world:#{id}")
     end
+
+    {:ok, _} =
+      GameoflifeWeb.Presence.track(self(), "users", id(12), %{
+        world_id: id,
+        online_at: DateTime.utc_now()
+      })
 
     world = Gameoflife.Cell.state(id, 1, 1).world
     grid = Map.new(for i <- 0..(world.rows - 1), j <- 0..(world.columns - 1), do: {{i, j}, false})

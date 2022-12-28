@@ -27,6 +27,12 @@ defmodule Gameoflife.World do
          ]}
       )
 
+      {:ok, _} =
+        GameoflifeWeb.Presence.track(pid, "worlds", id, %{
+          world: world,
+          online_at: DateTime.utc_now()
+        })
+
     {pid, world}
   end
 

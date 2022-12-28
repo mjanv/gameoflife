@@ -17,16 +17,6 @@ defmodule Gameoflife.Supervisor do
     Supervisor.init(children, strategy: :one_for_one)
   end
 
-  def count_worlds do
-    %{active: count} = DynamicSupervisor.count_children(Gameoflife.WorldSupervisor)
-    count
-  end
-
-  def list_worlds do
-    DynamicSupervisor.which_children(Gameoflife.WorldSupervisor)
-    |> Enum.map(fn {:undefined, pid, :supervisor, _} -> pid end)
-  end
-
   def stop_worlds do
     DynamicSupervisor.stop(Gameoflife.WorldSupervisor)
   end
