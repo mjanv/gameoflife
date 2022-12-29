@@ -1,7 +1,7 @@
 defmodule Gameoflife.Clock do
   @moduledoc false
 
-  defstruct id: nil, world: nil, t: 0
+  defstruct id: nil, world: nil, t: 0, real_time: 1
 
   use GenServer
 
@@ -18,13 +18,13 @@ defmodule Gameoflife.Clock do
   end
 
   def init(args) do
-    Process.send_after(self(), :tick, @every)
+    Process.send_after(self(), :tick, round(@every / args[:clock].real_time) |> IO.inspect)
     {:ok, args[:clock]}
   end
 
   def handle_info(:tick, clock) do
-    Process.send_after(self(), :tick, @every)
-    Process.send_after(self(), :tock, round(0.75 * @every))
+    Process.send_after(self(), :tick, round(@every / clock.real_time))
+    Process.send_after(self(), :tock, round(0.75 * @every / clock.real_time))
 
     for i <- 0..(clock.world.rows - 1) do
       for j <- 0..(clock.world.columns - 1) do

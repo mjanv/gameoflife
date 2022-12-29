@@ -9,7 +9,7 @@ defmodule GameoflifeWeb.Presence do
     "users"
     |> GameoflifeWeb.Presence.list()
     |> Enum.map(fn {k, %{metas: metas}} ->
-      {k, metas |> List.first |> Map.pop(:phx_ref)}
+      {k, metas |> List.first() |> Map.pop(:phx_ref)}
     end)
     |> Enum.into(%{})
   end

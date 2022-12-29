@@ -1,13 +1,23 @@
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="mt-5 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
   <div class="max-w-3xl mx-auto">
-    World <%= @world.id %> (<%= @world.rows %>x<%= @world.columns %>) - Time: <%= @t %>
-    <button phx-click="stop">Stop</button>
-    <%= inspect(@world) %>
+    <h2 class="text-3xl font-extrabold tracking-tight text-gray-900">🌎 World <%= @world.id %> (<%= @world.rows %>x<%= @world.columns %>)</h2>
+    <h3 class="ml-2 mt-2 mb-4 text-2xl font-bold tracking-tight text-gray-700">
+      <%= if not is_nil(@t) do %>
+        <%= Enum.at(["🕛", "🕒", "🕧", "🕘"], rem(@t, 4)) %> <%= @t %> ticks
+      <% end %>
+    </h3>
+    <button phx-click="stop" type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+      Stop
+    </button>
 
-    <div class={"grid grid-cols-16 mt-4 border"}>
+    <div class={"grid grid-cols-2 mt-4 border"}>
       <%= for i <- 0..(@world.rows - 1) do %>
         <%= for j <- 0..(@world.columns - 1) do %>
-          <div class={if Map.get(@grid, {i, j}), do: "o", else: "c"}></div>
+          <div class={case Map.get(@grid, {i, j}) do
+                :on -> "o"
+                :off -> "c"
+                :dead -> "d"
+              end}></div>
         <% end %>
       <% end %>
     </div>

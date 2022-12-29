@@ -15,9 +15,7 @@ defmodule GameoflifeWeb.Router do
   scope "/", GameoflifeWeb do
     pipe_through :browser
 
-    get "/", StartController, :index
-    post "/", StartController, :create
-
+    live "/", DashboardLive, :index
     live "/world/:id", WorldLive, :index
   end
 

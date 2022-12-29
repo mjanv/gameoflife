@@ -1,17 +1,18 @@
 defmodule Gameoflife.Cell do
   @moduledoc false
 
-  defstruct [:world, :x, :y, :t, :alive?, :neighbors]
+  defstruct [:world, :x, :y, :t, :alive?, :neighbors, :failure_rate]
 
   use GenServer
 
-  alias Gameoflife.Events.{Off, On, Ping, Tick, Tock}
+  alias Gameoflife.Events.{Dead, Off, On, Ping, Tick, Tock}
 
   def start_link(args) do
     GenServer.start_link(__MODULE__, args, name: args[:via])
   end
 
   def init(args) do
+    IO.inspect(args, label: "START")
     {:ok, args[:cell]}
   end
 
@@ -51,6 +52,17 @@ defmodule Gameoflife.Cell do
           :ok
       end
 
+    # if cell.failure_rate > 0 and IO.inspect(:random.uniform(100)) <= IO.inspect(cell.failure_rate) do
+    #   IO.inspect("ERROR")
+    #   #raise "oops"
+    #   #event = %Dead{t: cell.t, x: cell.x, y: cell.y}
+    #   #Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> cell.world.id, event)
+    # end
+
+    # if cell.x == 0 and cell.y == 0 do
+    #   raise "first"
+    # end
+
     {:noreply, %{cell | t: t, neighbors: 0, alive?: alive?}}
   end
 
@@ -64,6 +76,13 @@ defmodule Gameoflife.Cell do
 
     {:noreply, %{cell | neighbors: neighbors}}
   end
+
+  @impl true
+  def terminate(_reason, cell) do
+    event = %Dead{t: cell.t, x: cell.x, y: cell.y} |> IO.inspect
+    Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> cell.world.id, event)
+  end
+
 
   def name(%__MODULE__{world: world, x: x, y: y}) do
     "cell-#{world.id}-#{x}-#{y}"

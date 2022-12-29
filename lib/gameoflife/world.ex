@@ -27,18 +27,18 @@ defmodule Gameoflife.World do
          ]}
       )
 
-      {:ok, _} =
-        GameoflifeWeb.Presence.track(pid, "worlds", id, %{
-          world: world,
-          online_at: DateTime.utc_now()
-        })
+    {:ok, _} =
+      GameoflifeWeb.Presence.track(pid, "worlds", id, %{
+        world: world,
+        online_at: DateTime.utc_now()
+      })
 
     {pid, world}
   end
 
-  def start_cells({pid, %World{} = world}) do
+  def start_cells({pid, %World{} = world}, failure \\ 0) do
     world
-    |> World.cells()
+    |> World.cells(failure)
     |> Enum.each(fn cell ->
       DynamicSupervisor.start_child(
         pid,
@@ -53,8 +53,8 @@ defmodule Gameoflife.World do
     {pid, world}
   end
 
-  def start_clock({pid, %World{id: id} = world}) do
-    clock = %Clock{id: "clock-" <> id, world: world}
+  def start_clock({pid, %World{id: id} = world}, real_time \\ 1) do
+    clock = %Clock{id: "clock-" <> id, world: world, real_time: real_time}
 
     DynamicSupervisor.start_child(
       pid,
@@ -74,10 +74,10 @@ defmodule Gameoflife.World do
 
   def new(n) when is_integer(n), do: %World{id: id(4), columns: n, rows: n}
 
-  def cells(%World{columns: n, rows: m} = world) do
+  def cells(%World{columns: n, rows: m} = world, failure) do
     for i <- 0..(n - 1) do
       for j <- 0..(m - 1) do
-        %Cell{world: world, x: i, y: j, t: 0, neighbors: 0, alive?: Enum.random([true, false])}
+        %Cell{world: world, x: i, y: j, t: 0, neighbors: 0, failure_rate: failure, alive?: Enum.random([true, false])}
       end
     end
     |> List.flatten()

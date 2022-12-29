@@ -30,4 +30,10 @@ defmodule Gameoflife.Events do
 
     defstruct [:t, :x, :y]
   end
+
+  defmodule Dead do
+    @moduledoc false
+
+    defstruct [:t, :x, :y]
+  end
 end
