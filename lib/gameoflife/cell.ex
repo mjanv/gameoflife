@@ -3,7 +3,7 @@ defmodule Gameoflife.Cell do
 
   defstruct [:world, :x, :y, :t, :alive?, :neighbors, :failure_rate]
 
-  use GenServer
+  use GenServer, restart: :permanent
 
   alias Gameoflife.Events.{Dead, Off, On, Ping, Tick, Tock}
 
@@ -11,15 +11,27 @@ defmodule Gameoflife.Cell do
     GenServer.start_link(__MODULE__, args, name: args[:via])
   end
 
+
+  @impl true
   def init(args) do
-    IO.inspect(args, label: "START")
-    {:ok, args[:cell]}
+    cell = args[:cell]
+
+    event = if cell.alive? do
+      %On{t: cell.t, x: cell.x, y: cell.y}
+    else
+      %Off{t: cell.t, x: cell.x, y: cell.y}
+    end
+
+    Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> cell.world.id, event)
+    {:ok, cell}
   end
 
+  @impl true
   def handle_call(:state, _from, cell) do
     {:reply, cell, cell}
   end
 
+  @impl true
   def handle_cast(%Tick{t: t}, cell) do
     if cell.alive? do
       for {i, j} <- [{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}] do
@@ -30,6 +42,7 @@ defmodule Gameoflife.Cell do
     {:noreply, %{cell | t: t}}
   end
 
+  @impl true
   def handle_cast(%Tock{t: t}, cell) do
     alive? =
       case {cell.alive?, cell.neighbors} do
@@ -52,20 +65,16 @@ defmodule Gameoflife.Cell do
           :ok
       end
 
-    # if cell.failure_rate > 0 and IO.inspect(:random.uniform(100)) <= IO.inspect(cell.failure_rate) do
-    #   IO.inspect("ERROR")
-    #   #raise "oops"
-    #   #event = %Dead{t: cell.t, x: cell.x, y: cell.y}
-    #   #Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> cell.world.id, event)
-    # end
-
-    # if cell.x == 0 and cell.y == 0 do
-    #   raise "first"
-    # end
+    if cell.failure_rate > 0 do
+      if :rand.uniform(100) <= cell.failure_rate do
+        raise "oops"
+      end
+    end
 
     {:noreply, %{cell | t: t, neighbors: 0, alive?: alive?}}
   end
 
+  @impl true
   def handle_cast(%Ping{t: t}, cell) do
     neighbors =
       if t == cell.t do
@@ -79,10 +88,9 @@ defmodule Gameoflife.Cell do
 
   @impl true
   def terminate(_reason, cell) do
-    event = %Dead{t: cell.t, x: cell.x, y: cell.y} |> IO.inspect
+    event = %Dead{t: cell.t, x: cell.x, y: cell.y}
     Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> cell.world.id, event)
   end
-
 
   def name(%__MODULE__{world: world, x: x, y: y}) do
     "cell-#{world.id}-#{x}-#{y}"

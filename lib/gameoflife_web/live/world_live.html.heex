@@ -10,7 +10,7 @@
       Stop
     </button>
 
-    <div class={"grid grid-cols-2 mt-4 border"}>
+    <div class={"grid grid-cols-128 mt-4 border"}>
       <%= for i <- 0..(@world.rows - 1) do %>
         <%= for j <- 0..(@world.columns - 1) do %>
           <div class={case Map.get(@grid, {i, j}) do

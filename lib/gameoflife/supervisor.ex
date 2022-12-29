@@ -11,7 +11,8 @@ defmodule Gameoflife.Supervisor do
   def init(_init_arg) do
     children = [
       {Registry, keys: :unique, name: Gameoflife.Registry},
-      {DynamicSupervisor, strategy: :one_for_one, restart: :permanent, name: Gameoflife.WorldSupervisor}
+      {DynamicSupervisor,
+       strategy: :one_for_one, restart: :permanent, name: Gameoflife.WorldSupervisor}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

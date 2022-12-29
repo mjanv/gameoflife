@@ -18,7 +18,7 @@ defmodule Gameoflife.Clock do
   end
 
   def init(args) do
-    Process.send_after(self(), :tick, round(@every / args[:clock].real_time) |> IO.inspect)
+    Process.send_after(self(), :tick, round(@every / args[:clock].real_time))
     {:ok, args[:clock]}
   end
 
@@ -47,5 +47,10 @@ defmodule Gameoflife.Clock do
     Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> clock.world.id, %Tock{t: clock.t + 1})
 
     {:noreply, clock}
+  end
+
+  @impl true
+  def terminate(reason, clock) do
+    IO.inspect({reason, clock}, label: "CLLLLOOOOCKKKK")
   end
 end

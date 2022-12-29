@@ -13,7 +13,7 @@
         <div>
             <label for="rows" class="block text-xl font-medium text-gray-700">Size</label>
             <select id="rows" name="rows" class="mt-2 block w-full pl-3 pr-10 py-2 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-l rounded-md">
-                <%= for i <- [2, 4, 8, 16, 32, 64, 128, 256] do %>
+                <%= for i <- [2, 4, 8, 16, 32, 64, 128, 256, 512] do %>
                     <option><%= i %></option>
                 <% end %>
             </select>
@@ -78,8 +78,19 @@
     </div>
 
     <div class="mt-10 text-center">
+      <h2 class="text-3xl font-extrabold tracking-tight text-gray-900">
+        🦠 <%= Enum.sum(Enum.map(@worlds, fn {_, m} -> m.world.rows * m.world.columns end)) %> cells living
+      </h2>
+    </div>
+
+    <div class="mt-5 relative">
+      <div class="absolute inset-0 flex items-center" aria-hidden="true">
+        <div class="w-full border-t border-gray-300"></div>
+      </div>
+    </div>
+
+    <div class="mt-10 text-center">
       <h2 class="text-3xl font-extrabold tracking-tight text-gray-900">🌎 <%= map_size(@worlds) %> worlds online</h2>
-      <h2 class="text-2xl font-normal tracking-tight text-gray-500">🦠 <%= Enum.sum(Enum.map(@worlds, fn {_, m} -> m.world.rows * m.world.columns end)) %> cells living</h2>
     </div>
 
     <ul role="list" class="divide-y divide-gray-200">
