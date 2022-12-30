@@ -11,42 +11,43 @@
       <.form for={:ok} phx-submit="save" class="grid grid-cols-2 gap-y-6 gap-x-8">
         <input type="hidden" name="_csrf_token" value={@token} />
         <div>
-            <label for="rows" class="block text-xl font-medium text-gray-700">Size</label>
-            <select id="rows" name="rows" class="mt-2 block w-full pl-3 pr-10 py-2 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-l rounded-md">
-                <%= for i <- [2, 4, 8, 16, 32, 64, 128, 256, 512] do %>
-                    <option><%= i %></option>
-                <% end %>
-            </select>
+          <label for="rows" class="block text-xl font-medium text-gray-700">Size</label>
+          <select id="rows" name="rows" class="mt-2 block w-full pl-3 pr-10 py-2 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-l rounded-md">
+              <%= for i <- [2, 4, 8, 16, 32, 64, 128, 256, 512] do %>
+                  <option><%= i %></option>
+              <% end %>
+          </select>
         </div>
         <div>
-            <label for="real_time" class="block text-xl font-medium text-gray-700">Real-time</label>
-            <select id="real_time" name="real_time" class="mt-2 block w-full pl-3 pr-10 py-2 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-l rounded-md">
-                <%= for i <- [1, 2, 3, 4, 5] do %>
-                    <option value={i}><%= i %>x</option>
-                <% end %>
-            </select>
+          <label for="real_time" class="block text-xl font-medium text-gray-700">Real-time</label>
+          <select id="real_time" name="real_time" class="mt-2 block w-full pl-3 pr-10 py-2 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-l rounded-md">
+              <%= for i <- [1, 2, 3, 4] do %>
+                  <option value={i}><%= i %>x</option>
+              <% end %>
+          </select>
         </div>
         <div>
-            <label for="failure" class="block text-xl font-medium text-gray-700">Failure probability</label>
-            <select id="failure" name="failure" class="mt-2 block w-full pl-3 pr-10 py-2 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-l rounded-md">
-                <%= for p <- [0, 5, 10, 25, 50, 75, 90] do %>
-                    <option value={p}><%= p %>%</option>
-                <% end %>
-            </select>
+          <label for="failure" class="block text-xl font-medium text-gray-700">Cell failure probability</label>
+          <select id="failure" name="failure" class="mt-2 block w-full pl-3 pr-10 py-2 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-l rounded-md">
+              <%= for p <- [0, 2, 5, 10, 25, 50, 75] do %>
+                  <option value={p}><%= p %>%</option>
+              <% end %>
+          </select>
         </div>
         <div>
-            <label for="chaos" class="block text-xl font-medium text-gray-700">Chaos Monkey</label>
-            <select id="chaos" name="chaos" class="mt-2 block w-full pl-3 pr-10 py-2 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-l rounded-md">
-                <%= for i <- [0, 10, 15, 30, 60, 90] do %>
-                    <option>every <%= i %> ticks</option>
-                <% end %>
-            </select>
+          <label for="chaos" class="block text-xl font-medium text-gray-700">-</label>
+          <select id="chaos" name="chaos" disabled class="mt-2 block w-full pl-3 pr-10 py-2 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-l rounded-md">
+              <%= for i <- [] do %>
+                  <option>every <%= i %> ticks</option>
+              <% end %>
+          </select>
         </div>
         <div class="sm:col-span-2">
           <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Start</button>
         </div>
       </.form>
     </div>
+
     <div class="mt-10 text-center">
       <h2 class="text-3xl font-extrabold tracking-tight text-gray-900"> <%= length(@nodes) %> Erlang nodes</h2>
     </div>
@@ -91,6 +92,7 @@
 
     <div class="mt-10 text-center">
       <h2 class="text-3xl font-extrabold tracking-tight text-gray-900">🌎 <%= map_size(@worlds) %> worlds online</h2>
+      <button phx-click="stop" type="button" class="items-center mt-2 px-2 py-1 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Stop all worlds</button>
     </div>
 
     <ul role="list" class="divide-y divide-gray-200">

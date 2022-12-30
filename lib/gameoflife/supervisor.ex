@@ -11,8 +11,7 @@ defmodule Gameoflife.Supervisor do
   def init(_init_arg) do
     children = [
       {Registry, keys: :unique, name: Gameoflife.Registry},
-      {DynamicSupervisor,
-       strategy: :one_for_one, restart: :permanent, name: Gameoflife.WorldSupervisor}
+      {DynamicSupervisor, strategy: :one_for_one, name: Gameoflife.WorldSupervisor}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
@@ -20,5 +19,12 @@ defmodule Gameoflife.Supervisor do
 
   def stop_worlds do
     DynamicSupervisor.stop(Gameoflife.WorldSupervisor)
+  end
+
+  def stop_world(world) do
+    case Registry.lookup(Gameoflife.Registry, "world-" <> world.id) do
+      [{pid, _}] -> DynamicSupervisor.terminate_child(Gameoflife.WorldSupervisor, pid)
+      _ -> :ok
+    end
   end
 end

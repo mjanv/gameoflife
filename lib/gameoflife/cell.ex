@@ -32,6 +32,18 @@ defmodule Gameoflife.Cell do
   end
 
   @impl true
+  def handle_cast(:state, cell) do
+    event = if cell.alive? do
+      %On{t: cell.t, x: cell.x, y: cell.y}
+    else
+      %Off{t: cell.t, x: cell.x, y: cell.y}
+    end
+
+    Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> cell.world.id, event)
+    {:noreply, cell}
+  end
+
+  @impl true
   def handle_cast(%Tick{t: t}, cell) do
     if cell.alive? do
       for {i, j} <- [{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}] do

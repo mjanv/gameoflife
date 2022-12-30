@@ -19,6 +19,15 @@ defmodule GameoflifeWeb.WorldLive do
       })
 
     world = Gameoflife.Cell.state(id, 1, 1).world
+
+    Task.start(fn ->
+      for i <- 0..(world.rows - 1) do
+        for j <- 0..(world.columns - 1) do
+          Gameoflife.Cell.cast(world.id, i, j, :state)
+        end
+      end
+    end)
+
     grid = Map.new(for i <- 0..(world.rows - 1), j <- 0..(world.columns - 1), do: {{i, j}, :off})
 
     {:ok, assign(socket, t: nil, id: id, world: world, grid: grid, buffer: %{})}
@@ -44,8 +53,9 @@ defmodule GameoflifeWeb.WorldLive do
     {:noreply, assign(socket, buffer: Map.put(buffer, {x, y}, :dead))}
   end
 
-  def handle_event("stop", _params, socket) do
-    Gameoflife.Supervisor.stop_worlds()
-    {:noreply, socket}
+  def handle_event("stop", _params, %{assigns: %{world: world}} = socket) do
+    :ok = Gameoflife.Supervisor.stop_world(world)
+    Phoenix.PubSub.broadcast(Gameoflife.PubSub, "worlds", world)
+    {:noreply, push_redirect(socket, to: Routes.dashboard_path(socket, :index))}
   end
 end
