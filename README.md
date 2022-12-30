@@ -1,24 +1,14 @@
-# Gameoflife
+# Game of life
 
-## Step 1 - Project creation
+## Start the project
 
 ```bash
-mix phx.new . --app gameoflife --no-ecto --no-mailer --no-gettext
-mix deps.get
 mix phx.server
 ```
 
-## Step 2 - Tailwind
+Go to [http://localhost:4000](http://localhost:4000)
 
-[Tailwind Phoenix guide](https://tailwindcss.com/docs/guides/phoenix)
 
-```bash
-mix deps.get
-mix tailwind.install
-mix phx.server
-```
+## Ressources
 
-## Step 3 - LiveView for simple cell
-
-https://daily-dev-tips.com/posts/tailwind-css-responsive-square-divs/
-
+- [Simulating Conway's Game of Life with 100.000 Erlang Processes](https://www.peterullrich.com/simulating-game-of-life-with-100000-erlang-processes)
