@@ -11,16 +11,16 @@ defmodule Gameoflife.Cell do
     GenServer.start_link(__MODULE__, args, name: args[:via])
   end
 
-
   @impl true
   def init(args) do
     cell = args[:cell]
 
-    event = if cell.alive? do
-      %On{t: cell.t, x: cell.x, y: cell.y}
-    else
-      %Off{t: cell.t, x: cell.x, y: cell.y}
-    end
+    event =
+      if cell.alive? do
+        %On{t: cell.t, x: cell.x, y: cell.y}
+      else
+        %Off{t: cell.t, x: cell.x, y: cell.y}
+      end
 
     Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> cell.world.id, event)
     {:ok, cell}
@@ -33,11 +33,12 @@ defmodule Gameoflife.Cell do
 
   @impl true
   def handle_cast(:state, cell) do
-    event = if cell.alive? do
-      %On{t: cell.t, x: cell.x, y: cell.y}
-    else
-      %Off{t: cell.t, x: cell.x, y: cell.y}
-    end
+    event =
+      if cell.alive? do
+        %On{t: cell.t, x: cell.x, y: cell.y}
+      else
+        %Off{t: cell.t, x: cell.x, y: cell.y}
+      end
 
     Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> cell.world.id, event)
     {:noreply, cell}

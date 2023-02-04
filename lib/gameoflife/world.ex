@@ -13,7 +13,11 @@ defmodule Gameoflife.World do
 
   @impl true
   def init(args) do
-    Supervisor.init(args[:children], strategy: :one_for_one, restart: :temporary, max_restarts: 30_000)
+    Supervisor.init(args[:children],
+      strategy: :one_for_one,
+      restart: :temporary,
+      max_restarts: 30_000
+    )
   end
 
   def start_world(%World{id: id} = world, children) do
