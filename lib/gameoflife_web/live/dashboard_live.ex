@@ -17,7 +17,7 @@ defmodule GameoflifeWeb.DashboardLive do
 
   def handle_event(
         "save",
-        %{"rows" => rows, "real_time" => real_time, "failure" => failure} = args,
+        %{"rows" => rows, "real_time" => real_time, "failure" => failure},
         socket
       ) do
     {_, world} =
@@ -36,13 +36,13 @@ defmodule GameoflifeWeb.DashboardLive do
     {:noreply, socket}
   end
 
-  def handle_info(event, socket) do
+  def handle_event("stop", _params, socket) do
+    Gameoflife.Supervisor.stop_worlds()
     socket = assign(socket, :worlds, GameoflifeWeb.Presence.worlds())
     {:noreply, socket}
   end
 
-  def handle_event("stop", _params, socket) do
-    Gameoflife.Supervisor.stop_worlds()
+  def handle_info(_event, socket) do
     socket = assign(socket, :worlds, GameoflifeWeb.Presence.worlds())
     {:noreply, socket}
   end

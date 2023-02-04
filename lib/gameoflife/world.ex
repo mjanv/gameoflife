@@ -81,7 +81,7 @@ defmodule Gameoflife.World do
   end
 
   defp id(n) do
-    for _ <- 1..n, into: "", do: <<Enum.at('0123456789', :crypto.rand_uniform(0, 10))>>
+    for _ <- 1..n, into: "", do: <<Enum.at('0123456789', :rand.uniform(10) - 1)>>
   end
 
   def new(rows, real_time, failure) do

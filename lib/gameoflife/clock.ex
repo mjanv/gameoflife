@@ -17,11 +17,13 @@ defmodule Gameoflife.Clock do
     GenServer.start_link(__MODULE__, args, name: args[:via])
   end
 
+  @impl true
   def init(args) do
     Process.send_after(self(), :tick, round(@every / args[:clock].real_time))
     {:ok, args[:clock]}
   end
 
+  @impl true
   def handle_info(:tick, clock) do
     Process.send_after(self(), :tick, round(@every / clock.real_time))
     Process.send_after(self(), :tock, round(0.75 * @every / clock.real_time))
