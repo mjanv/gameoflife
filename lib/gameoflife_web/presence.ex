@@ -5,7 +5,7 @@ defmodule GameoflifeWeb.Presence do
     otp_app: :gameoflife,
     pubsub_server: Gameoflife.PubSub
 
-  def users() do
+  def users do
     "users"
     |> GameoflifeWeb.Presence.list()
     |> Enum.map(fn {k, %{metas: metas}} ->
@@ -14,7 +14,7 @@ defmodule GameoflifeWeb.Presence do
     |> Enum.into(%{})
   end
 
-  def worlds() do
+  def worlds do
     "worlds"
     |> GameoflifeWeb.Presence.list()
     |> Enum.map(fn {k, %{metas: metas}} ->

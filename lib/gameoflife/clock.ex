@@ -50,7 +50,7 @@ defmodule Gameoflife.Clock do
   end
 
   @impl true
-  def terminate(reason, clock) do
-    IO.inspect({reason, clock}, label: "CLLLLOOOOCKKKK")
+  def terminate(_reason, _clock) do
+    :ok
   end
 end
