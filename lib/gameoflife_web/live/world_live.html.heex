@@ -1,18 +1,25 @@
-<div class="mt-5 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-  <div class="max-w-3xl mx-auto">
-    <h2 class="inline-flex text-4xl font-extrabold tracking-tight text-gray-900">🌎 World <%= @world.id %></h2>
-    <h3 class="inline-flex ml-2 mt-2 mb-4 text-2xl font-bold tracking-tight text-gray-700">
-      🦠 <%= @world.rows %>x<%= @world.columns %> = <%= @world.columns * @world.rows %> cells
+<div class="mt-5 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 class="inline-flex text-4xl font-extrabold tracking-tight text-gray-900">
+    <%= if not is_nil(@t) do %>
+      <%= Enum.at(["🌍", "🌎", "🌏"], rem(@t, 3)) %> World <%= @world.id %>
+    <% end %>
+      - 🦠 <%= @world.columns * @world.rows %> cells (<%= @world.rows %>x<%= @world.columns %>)
       <%= if not is_nil(@t) do %>
-        <%= Enum.at(["🕛", "🕒", "🕧", "🕘"], rem(@t, 4)) %> <%= @t %> ticks
+        - <%= Enum.at(["🕛", "🕒", "🕧", "🕘"], rem(@t, 4)) %> Tick <%= @t %>
       <% end %>
-    </h3>
-      <br \>
-    <p class="inline mr-4">⬛ Alive - ⬜ Dead - 🟥 Failing</p>
+      <%= if not is_nil(@msg) do %>
+        - <%= Number.Delimit.number_to_delimited(@msg * 60 * 60) %> messages / hour
+        - <%= Number.Delimit.number_to_delimited(@msg * 60) %> messages / minute
+        - <%= Number.Delimit.number_to_delimited(@msg) %> messages / second
+        - <%= Number.Delimit.number_to_delimited(round(@weight * 60 * 60 / 1_000_000)) %> MB / hour
+        - <%= Number.Delimit.number_to_delimited(round(@weight * 60 / 1_000_000)) %> MB / minute
+        - <%= Number.Delimit.number_to_delimited(round(@weight / 1_000_000)) %> MB / second
+      <% end %>
+    </h2>
     <button phx-click="stop" type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
       Stop
     </button>
-
+    <br \>
     <div class={case @world.rows do
       2 -> "grid grid-cols-2 mt-4 border"
       4 -> "grid grid-cols-4 mt-4 border"
@@ -24,6 +31,7 @@
       256 -> "grid grid-cols-256 mt-4 border"
       320 -> "grid grid-cols-320 mt-4 border"
       512 -> "grid grid-cols-512 mt-4 border"
+      1000 -> "grid grid-cols-1000 mt-4 border"
     end}>
       <%= for i <- 0..(@world.rows - 1) do %>
         <%= for j <- 0..(@world.columns - 1) do %>
@@ -35,5 +43,4 @@
         <% end %>
       <% end %>
     </div>
-  </div>
 </div>

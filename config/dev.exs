@@ -1,7 +1,7 @@
 import Config
 
 config :gameoflife, GameoflifeWeb.Endpoint,
-  http: [ip: {0, 0, 0, 0}, port: 4000],
+  http: [ip: {0, 0, 0, 0}, port: System.get_env("PORT", "4000")],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
@@ -17,6 +17,14 @@ config :gameoflife, GameoflifeWeb.Endpoint,
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"lib/gameoflife_web/(live|views)/.*(ex)$",
       ~r"lib/gameoflife_web/templates/.*(eex)$"
+    ]
+  ]
+
+config :libcluster,
+  debug: true,
+  topologies: [
+    local: [
+      strategy: Cluster.Strategy.LocalEpmd
     ]
   ]
 

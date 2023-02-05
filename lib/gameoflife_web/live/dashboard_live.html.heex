@@ -13,8 +13,8 @@
         <div>
           <label for="rows" class="block text-xl font-medium text-gray-700">Size</label>
           <select id="rows" name="rows" class="mt-2 block w-full pl-3 pr-10 py-2 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-l rounded-md">
-              <%= for i <- [2, 4, 8, 16, 32, 64, 128, 256, 320, 512] do %>
-                  <option><%= i %></option>
+              <%= for i <- [16, 32, 64, 128, 256, 320, 512, 1_000] do %>
+                  <option value={i}><%= i %>x<%= i %> | <%= i * i %> cells</option>
               <% end %>
           </select>
         </div>
@@ -26,6 +26,7 @@
               <% end %>
           </select>
         </div>
+        <!--
         <div>
           <label for="failure" class="block text-xl font-medium text-gray-700">Cell failure probability</label>
           <select id="failure" name="failure" class="mt-2 block w-full pl-3 pr-10 py-2 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-l rounded-md">
@@ -34,31 +35,38 @@
               <% end %>
           </select>
         </div>
-        <div>
-          <label for="chaos" class="block text-xl font-medium text-gray-700">-</label>
-          <select id="chaos" name="chaos" disabled class="mt-2 block w-full pl-3 pr-10 py-2 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-l rounded-md">
-              <%= for i <- [] do %>
-                  <option>every <%= i %> ticks</option>
-              <% end %>
-          </select>
-        </div>
+        -->
         <div class="sm:col-span-2">
-          <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Start</button>
+          <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-2xl font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Start</button>
         </div>
       </.form>
     </div>
+
 
     <div class="mt-10 text-center">
       <h2 class="text-3xl font-extrabold tracking-tight text-gray-900"> <%= length(@nodes) %> Erlang nodes</h2>
     </div>
 
     <ul role="list" class="divide-y divide-gray-200">
-      <%= for  node <- @nodes do %>
-        <li class="py-4 flex">
-          <div class="ml-3">
-            <p class="text-l font-medium text-gray-900"><%= inspect(node) %></p>
-          </div>
-        </li>
+      <div class="mt-5 text-center">
+        <h2 class="text-xl font-bold tracking-tight text-gray-900">Current node - <%= hd(@nodes) %></h2>
+        <span class="inline-flex items-center mt-2 px-3 py-0.5 rounded-full text-m font-medium bg-green-100 text-green-800">
+          Architecture | <%= @architecture[:arch] %>
+        </span>
+        <span class="inline-flex items-center mt-2 px-3 py-0.5 rounded-full text-m font-medium bg-yellow-100 text-yellow-800">
+          Memory | <%= elem(@architecture[:memory], 0) %>Go
+        </span>
+        <%= for cpu <- @architecture[:cpus] do %>
+          <span class="inline-flex items-center mt-2 px-3 py-0.5 rounded-full text-m font-medium bg-purple-100 text-purple-800">
+            CPUs | <%= elem(cpu, 0) %> x <%= elem(cpu, 1) %>
+          </span>
+        <% end %>
+      </div>
+
+      <%= for node <- tl(@nodes) do %>
+        <div class="mt-5 text-center">
+          <h2 class="text-xl font-bold tracking-tight text-gray-900"><%= node %></h2>
+        </div>
       <% end %>
     </ul>
 

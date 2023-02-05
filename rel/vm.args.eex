@@ -6,7 +6,7 @@
 
 ## Increase number of concurrent ports/sockets
 +Q 65536
-+P 500000
++P 1000000
 
 ## Tweak GC to run more often
 ##-env ERL_FULLSWEEP_AFTER 10

@@ -13,8 +13,11 @@ defmodule Gameoflife.Cell do
 
   @impl true
   def init(args) do
-    cell = args[:cell]
+    {:ok, args[:cell], {:continue, :broadcast}}
+  end
 
+  @impl true
+  def handle_continue(:broadcast, cell) do
     event =
       if cell.alive? do
         %On{t: cell.t, x: cell.x, y: cell.y}
@@ -22,8 +25,8 @@ defmodule Gameoflife.Cell do
         %Off{t: cell.t, x: cell.x, y: cell.y}
       end
 
-    Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> cell.world.id, event)
-    {:ok, cell}
+    GameoflifeWeb.PubSub.broadcast("world:" <> cell.world.id, event)
+    {:noreply, cell}
   end
 
   @impl true
@@ -40,7 +43,7 @@ defmodule Gameoflife.Cell do
         %Off{t: cell.t, x: cell.x, y: cell.y}
       end
 
-    Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> cell.world.id, event)
+    GameoflifeWeb.PubSub.broadcast("world:" <> cell.world.id, event)
     {:noreply, cell}
   end
 
@@ -64,19 +67,20 @@ defmodule Gameoflife.Cell do
         _ -> false
       end
 
-    :ok =
-      case {cell.alive?, alive?} do
-        {false, true} ->
-          event = %On{t: cell.t, x: cell.x, y: cell.y}
-          Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> cell.world.id, event)
+    case {cell.alive?, alive?} do
+      {false, true} ->
+        event = %On{t: cell.t, x: cell.x, y: cell.y}
 
-        {true, false} ->
-          event = %Off{t: cell.t, x: cell.x, y: cell.y}
-          Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> cell.world.id, event)
+        GameoflifeWeb.PubSub.broadcast("world:" <> cell.world.id, event)
 
-        _ ->
-          :ok
-      end
+      {true, false} ->
+        event = %Off{t: cell.t, x: cell.x, y: cell.y}
+
+        GameoflifeWeb.PubSub.broadcast("world:" <> cell.world.id, event)
+
+      _ ->
+        :ok
+    end
 
     if cell.failure_rate > 0 do
       if :rand.uniform(100) <= cell.failure_rate do
@@ -100,9 +104,14 @@ defmodule Gameoflife.Cell do
   end
 
   @impl true
+  def handle_cast(_msg, cell) do
+    {:noreply, cell}
+  end
+
+  @impl true
   def terminate(_reason, cell) do
     event = %Dead{t: cell.t, x: cell.x, y: cell.y}
-    Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> cell.world.id, event)
+    GameoflifeWeb.PubSub.broadcast("world:" <> cell.world.id, event)
   end
 
   def name(%__MODULE__{world: world, x: x, y: y}) do
@@ -110,10 +119,6 @@ defmodule Gameoflife.Cell do
   end
 
   def cast(id, x, y, msg) do
-    GenServer.cast({:via, Registry, {Gameoflife.Registry, "cell-#{id}-#{x}-#{y}"}}, msg)
-  end
-
-  def state(id, x, y) do
-    GenServer.call({:via, Registry, {Gameoflife.Registry, "cell-#{id}-#{x}-#{y}"}}, :state)
+    GenServer.cast(Gameoflife.Supervisor.via("cell-#{id}-#{x}-#{y}"), msg)
   end
 end

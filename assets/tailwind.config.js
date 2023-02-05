@@ -19,6 +19,7 @@ module.exports = {
         '256': 'repeat(256, minmax(0, 1fr))',
         '320': 'repeat(320, minmax(0, 1fr))',
         '512': 'repeat(512, minmax(0, 1fr))',
+        '1000': 'repeat(1000, minmax(0, 1fr))',
       },
       padding: {
         '1/2': '50%',

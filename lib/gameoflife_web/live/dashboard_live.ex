@@ -10,24 +10,25 @@ defmodule GameoflifeWeb.DashboardLive do
      assign(socket,
        token: Phoenix.Controller.get_csrf_token(),
        worlds: GameoflifeWeb.Presence.worlds(),
-       nodes: [Node.self()] ++ Node.list(),
+       nodes: GameoflifeWeb.Distributed.nodes(),
+       architecture: GameoflifeWeb.Distributed.architecture(),
        users: GameoflifeWeb.Presence.users()
      )}
   end
 
   def handle_event(
         "save",
-        %{"rows" => rows, "real_time" => real_time, "failure" => failure},
+        %{"rows" => rows, "real_time" => real_time},
         socket
       ) do
     {_, world} =
       Gameoflife.World.new(
         String.to_integer(rows),
         String.to_integer(real_time),
-        String.to_integer(failure)
+        String.to_integer("0")
       )
 
-    Phoenix.PubSub.broadcast(Gameoflife.PubSub, "worlds", world)
+    GameoflifeWeb.PubSub.broadcast("worlds", world)
 
     socket =
       socket

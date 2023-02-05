@@ -5,21 +5,20 @@ defmodule GameoflifeWeb.Presence do
     otp_app: :gameoflife,
     pubsub_server: Gameoflife.PubSub
 
-  def users do
-    "users"
-    |> GameoflifeWeb.Presence.list()
-    |> Enum.map(fn {k, %{metas: metas}} ->
-      {k, metas |> List.first() |> Map.pop(:phx_ref)}
-    end)
-    |> Enum.into(%{})
+  def users, do: presence("users")
+  def worlds, do: presence("worlds")
+
+  def presence(topic, key) do
+    case GameoflifeWeb.Presence.get_by_key(topic, key) do
+      %{metas: metas} -> List.first(metas)
+      _ -> nil
+    end
   end
 
-  def worlds do
-    "worlds"
+  defp presence(topic) do
+    topic
     |> GameoflifeWeb.Presence.list()
-    |> Enum.map(fn {k, %{metas: metas}} ->
-      {k, List.first(metas)}
-    end)
+    |> Enum.map(fn {k, %{metas: metas}} -> {k, List.first(metas)} end)
     |> Enum.into(%{})
   end
 end

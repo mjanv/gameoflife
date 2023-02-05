@@ -34,7 +34,7 @@ defmodule Gameoflife.Clock do
       end
     end
 
-    Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> clock.world.id, %Tick{t: clock.t + 1})
+    GameoflifeWeb.PubSub.broadcast("world:" <> clock.world.id, %Tick{t: clock.t + 1})
 
     {:noreply, %{clock | t: clock.t + 1}}
   end
@@ -46,7 +46,7 @@ defmodule Gameoflife.Clock do
       end
     end
 
-    Phoenix.PubSub.broadcast(Gameoflife.PubSub, "world:" <> clock.world.id, %Tock{t: clock.t + 1})
+    GameoflifeWeb.PubSub.broadcast("world:" <> clock.world.id, %Tock{t: clock.t + 1})
 
     {:noreply, clock}
   end

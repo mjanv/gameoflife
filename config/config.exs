@@ -26,6 +26,12 @@ config :tailwind,
     cd: Path.expand("../assets", __DIR__)
   ]
 
+config :number, delimit: [
+    precision: 0,
+    delimiter: ".",
+    separator: ","
+  ]
+
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]

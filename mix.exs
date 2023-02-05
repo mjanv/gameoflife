@@ -39,8 +39,11 @@ defmodule Gameoflife.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
+      {:number, "~> 1.0"},
       {:libcluster, "~> 3.3"},
-      {:credo, "~> 1.6", only: [:dev, :test], runtime: false}
+      {:horde, "~> 0.8.5"},
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
+      {:benchee, "~> 1.0", only: [:dev, :test]}
     ]
   end
 

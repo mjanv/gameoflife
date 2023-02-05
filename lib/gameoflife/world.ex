@@ -3,34 +3,36 @@ defmodule Gameoflife.World do
 
   defstruct [:id, :columns, :rows]
 
-  use Supervisor
+  use DynamicSupervisor
 
   alias Gameoflife.{Cell, Clock, World}
 
   def start_link(args) do
-    Supervisor.start_link(__MODULE__, args, name: args[:name])
+    DynamicSupervisor.start_link(__MODULE__, args, name: args[:name])
   end
 
   @impl true
-  def init(args) do
-    Supervisor.init(args[:children],
+  def init(_args) do
+    DynamicSupervisor.init(
       strategy: :one_for_one,
       restart: :temporary,
       max_restarts: 30_000
     )
   end
 
+  def new(rows, real_time, failure) do
+    world = %World{id: id(4), columns: rows, rows: rows}
+    start_world(world, cells(world, failure) ++ sidecars(world, real_time))
+  end
+
   def start_world(%World{id: id} = world, children) do
-    {:ok, pid} =
-      DynamicSupervisor.start_child(
-        Gameoflife.WorldSupervisor,
-        {__MODULE__,
-         [
-           id: id,
-           children: children,
-           name: {:via, Registry, {Gameoflife.Registry, "world-" <> id}}
-         ]}
-      )
+    {:ok, pid} = Gameoflife.Supervisor.start_world(id)
+
+    Task.start(fn ->
+      for child <- children do
+        DynamicSupervisor.start_child(pid, child)
+      end
+    end)
 
     {:ok, _} =
       GameoflifeWeb.Presence.track(pid, "worlds", id, %{
@@ -61,7 +63,7 @@ defmodule Gameoflife.World do
         {Gameoflife.Cell,
          [
            cell: cell,
-           via: {:via, Registry, {Gameoflife.Registry, Cell.name(cell)}}
+           via: Gameoflife.Supervisor.via(Cell.name(cell))
          ]},
         id: Cell.name(cell)
       )
@@ -75,17 +77,12 @@ defmodule Gameoflife.World do
       {Gameoflife.Clock,
        [
          clock: clock,
-         via: {:via, Registry, {Gameoflife.Registry, Clock.name(clock)}}
+         via: Gameoflife.Supervisor.via(Clock.name(clock))
        ]}
     ]
   end
 
   defp id(n) do
     for _ <- 1..n, into: "", do: <<Enum.at('0123456789', :rand.uniform(10) - 1)>>
-  end
-
-  def new(rows, real_time, failure) do
-    world = %World{id: id(4), columns: rows, rows: rows}
-    start_world(world, cells(world, failure) ++ sidecars(world, real_time))
   end
 end

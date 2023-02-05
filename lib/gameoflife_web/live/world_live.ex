@@ -18,7 +18,7 @@ defmodule GameoflifeWeb.WorldLive do
         online_at: DateTime.utc_now()
       })
 
-    world = Gameoflife.Cell.state(id, 1, 1).world
+    world = GameoflifeWeb.Presence.presence("worlds", id).world
 
     Task.start(fn ->
       for i <- 0..(world.rows - 1) do
@@ -30,19 +30,43 @@ defmodule GameoflifeWeb.WorldLive do
 
     grid = Map.new(for i <- 0..(world.rows - 1), j <- 0..(world.columns - 1), do: {{i, j}, :off})
 
-    {:ok, assign(socket, t: nil, id: id, world: world, grid: grid, buffer: %{})}
+    {:ok,
+     assign(socket,
+       t: nil,
+       id: id,
+       world: world,
+       on: 0,
+       weight: 0,
+       msg: 0,
+       grid: grid,
+       buffer: %{}
+     )}
   end
 
   def handle_info(%Tick{}, socket) do
     {:noreply, socket}
   end
 
-  def handle_info(%Tock{t: t}, %{assigns: %{grid: grid, buffer: buffer}} = socket) do
-    {:noreply, assign(socket, t: t, grid: Map.merge(grid, buffer), buffer: %{})}
+  def handle_info(
+        %Tock{t: t} = event,
+        %{assigns: %{grid: grid, on: on, world: world, buffer: buffer}} = socket
+      ) do
+    msg = 2 * world.rows * world.columns + 8 * on
+    weight = msg * :erlang.byte_size(:erlang.term_to_binary(event))
+
+    {:noreply,
+     assign(socket,
+       t: t,
+       on: 0,
+       msg: msg,
+       weight: weight,
+       grid: Map.merge(grid, buffer),
+       buffer: %{}
+     )}
   end
 
-  def handle_info(%On{x: x, y: y}, %{assigns: %{buffer: buffer}} = socket) do
-    {:noreply, assign(socket, buffer: Map.put(buffer, {x, y}, :on))}
+  def handle_info(%On{x: x, y: y}, %{assigns: %{buffer: buffer, on: on}} = socket) do
+    {:noreply, assign(socket, on: on + 1, buffer: Map.put(buffer, {x, y}, :on))}
   end
 
   def handle_info(%Off{x: x, y: y}, %{assigns: %{buffer: buffer}} = socket) do
@@ -55,7 +79,7 @@ defmodule GameoflifeWeb.WorldLive do
 
   def handle_event("stop", _params, %{assigns: %{world: world}} = socket) do
     :ok = Gameoflife.Supervisor.stop_world(world)
-    Phoenix.PubSub.broadcast(Gameoflife.PubSub, "worlds", world)
+    GameoflifeWeb.PubSub.broadcast("worlds", world)
     {:noreply, push_redirect(socket, to: Routes.dashboard_path(socket, :index))}
   end
 end
