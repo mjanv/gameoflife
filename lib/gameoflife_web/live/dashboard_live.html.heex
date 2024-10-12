@@ -8,7 +8,7 @@
       <h2 class="text-3xl font-extrabold tracking-tight text-gray-900">🚀 Start a new world</h2>
     </div>
     <div class="mt-6">
-      <.form for={:ok} phx-submit="save" class="grid grid-cols-2 gap-y-6 gap-x-8">
+      <.form for={@form} phx-submit="save" class="grid grid-cols-2 gap-y-6 gap-x-8">
         <input type="hidden" name="_csrf_token" value={@token} />
         <div>
           <label for="rows" class="block text-xl font-medium text-gray-700">Size</label>
@@ -110,7 +110,9 @@
             <span class="text-lg font-medium leading-none text-white"><%= id %></span>
           </span>
           <div class="ml-3">
-           <%= link "World #{id} - 🦠 #{meta.world.rows * meta.world.columns} cells (#{meta.world.rows} x #{meta.world.columns})", class: "text-l font-medium text-gray-900", to: Routes.world_path(@socket, :index, id) %>
+           <.link class="text-l font-medium text-gray-900" href={~p"/world/#{id}"}>
+            <%= World #{id} - 🦠 #{meta.world.rows * meta.world.columns} cells (#{meta.world.rows} x #{meta.world.columns}) %>
+           </.link>
            <p class="text-m text-gray-700">Online at <%= DateTime.truncate(meta.online_at, :second) %></p>
           </div>
         </li>

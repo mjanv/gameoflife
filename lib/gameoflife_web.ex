@@ -1,57 +1,29 @@
 defmodule GameoflifeWeb do
-  @moduledoc false
+  @moduledoc """
+  The entrypoint for defining your web interface, such
+  as controllers, components, channels, and so on.
 
-  def controller do
-    quote do
-      use Phoenix.Controller, namespace: GameoflifeWeb
+  This can be used in your application as:
 
-      import Plug.Conn
-      alias GameoflifeWeb.Router.Helpers, as: Routes
-    end
-  end
+      use GameoflifeWeb, :controller
+      use GameoflifeWeb, :html
 
-  def view do
-    quote do
-      use Phoenix.View,
-        root: "lib/gameoflife_web/templates",
-        namespace: GameoflifeWeb
+  The definitions below will be executed for every controller,
+  component, etc, so keep them short and clean, focused
+  on imports, uses and aliases.
 
-      import Phoenix.Controller,
-        only: [get_flash: 1, get_flash: 2, view_module: 1, view_template: 1]
+  Do NOT define functions inside the quoted expressions
+  below. Instead, define additional modules and import
+  those modules here.
+  """
 
-      unquote(view_helpers())
-    end
-  end
-
-  def live_view do
-    quote do
-      use Phoenix.LiveView,
-        layout: {GameoflifeWeb.LayoutView, "live.html"}
-
-      unquote(view_helpers())
-    end
-  end
-
-  def live_component do
-    quote do
-      use Phoenix.LiveComponent
-
-      unquote(view_helpers())
-    end
-  end
-
-  def component do
-    quote do
-      use Phoenix.Component
-
-      unquote(view_helpers())
-    end
-  end
+  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
 
   def router do
     quote do
-      use Phoenix.Router
+      use Phoenix.Router, helpers: false
 
+      # Import common connection and controller functions to use in pipelines
       import Plug.Conn
       import Phoenix.Controller
       import Phoenix.LiveView.Router
@@ -64,17 +36,75 @@ defmodule GameoflifeWeb do
     end
   end
 
-  defp view_helpers do
+  def controller do
     quote do
-      use Phoenix.HTML
-      import Phoenix.LiveView.Helpers
-      import Phoenix.View
+      use Phoenix.Controller,
+        formats: [:html, :json],
+        layouts: [html: GameoflifeWeb.Layouts]
 
-      import GameoflifeWeb.ErrorHelpers
-      alias GameoflifeWeb.Router.Helpers, as: Routes
+      import Plug.Conn
+
+      unquote(verified_routes())
     end
   end
 
+  def live_view do
+    quote do
+      use Phoenix.LiveView,
+        layout: {GameoflifeWeb.Layouts, :app}
+
+      unquote(html_helpers())
+    end
+  end
+
+  def live_component do
+    quote do
+      use Phoenix.LiveComponent
+
+      unquote(html_helpers())
+    end
+  end
+
+  def html do
+    quote do
+      use Phoenix.Component
+
+      # Import convenience functions from controllers
+      import Phoenix.Controller,
+        only: [get_csrf_token: 0, view_module: 1, view_template: 1]
+
+      # Include general helpers for rendering HTML
+      unquote(html_helpers())
+    end
+  end
+
+  defp html_helpers do
+    quote do
+      # HTML escaping functionality
+      import Phoenix.HTML
+      # Core UI components and translation
+      import GameoflifeWeb.CoreComponents
+
+      # Shortcut for generating JS commands
+      alias Phoenix.LiveView.JS
+
+      # Routes generation with the ~p sigil
+      unquote(verified_routes())
+    end
+  end
+
+  def verified_routes do
+    quote do
+      use Phoenix.VerifiedRoutes,
+        endpoint: GameoflifeWeb.Endpoint,
+        router: GameoflifeWeb.Router,
+        statics: GameoflifeWeb.static_paths()
+    end
+  end
+
+  @doc """
+  When used, dispatch to the appropriate controller/live_view/etc.
+  """
   defmacro __using__(which) when is_atom(which) do
     apply(__MODULE__, which, [])
   end

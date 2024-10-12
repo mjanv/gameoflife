@@ -2,13 +2,17 @@ import Config
 
 config :gameoflife, GameoflifeWeb.Endpoint,
   url: [host: "localhost"],
-  render_errors: [view: GameoflifeWeb.ErrorView, accepts: ~w(html json), layout: false],
+  adapter: Bandit.PhoenixAdapter,
+  render_errors: [
+    formats: [html: GameoflifeWeb.ErrorHTML, json: GameoflifeWeb.ErrorJSON],
+    layout: false
+  ],
   pubsub_server: Gameoflife.PubSub,
-  live_view: [signing_salt: "4uNgEhxL"]
+  live_view: [signing_salt: "8sLtloLK"]
 
 config :esbuild,
-  version: "0.14.0",
-  default: [
+  version: "0.17.11",
+  gameoflife: [
     args:
       ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
     cd: Path.expand("../assets", __DIR__),
@@ -16,8 +20,8 @@ config :esbuild,
   ]
 
 config :tailwind,
-  version: "3.1.8",
-  default: [
+  version: "3.4.3",
+  gameoflife: [
     args: ~w(
       --config=tailwind.config.js
       --input=css/app.css
@@ -26,7 +30,8 @@ config :tailwind,
     cd: Path.expand("../assets", __DIR__)
   ]
 
-config :number, delimit: [
+config :number,
+  delimit: [
     precision: 0,
     delimiter: ".",
     separator: ","

@@ -8,6 +8,7 @@ defmodule GameoflifeWeb.DashboardLive do
 
     {:ok,
      assign(socket,
+       form: %{},
        token: Phoenix.Controller.get_csrf_token(),
        worlds: GameoflifeWeb.Presence.worlds(),
        nodes: GameoflifeWeb.Distributed.nodes(),
@@ -30,11 +31,7 @@ defmodule GameoflifeWeb.DashboardLive do
 
     GameoflifeWeb.PubSub.broadcast("worlds", world)
 
-    socket =
-      socket
-      |> push_redirect(to: Routes.world_path(socket, :index, world.id))
-
-    {:noreply, socket}
+    {:noreply, push_navigate(socket, to: ~p"/world/#{world}")}
   end
 
   def handle_event("stop", _params, socket) do

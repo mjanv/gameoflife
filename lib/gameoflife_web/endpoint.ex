@@ -7,10 +7,13 @@ defmodule GameoflifeWeb.Endpoint do
   @session_options [
     store: :cookie,
     key: "_gameoflife_key",
-    signing_salt: "xFH5Hh7o"
+    signing_salt: "Yio65aAk",
+    same_site: "Lax"
   ]
 
-  socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
+  socket "/live", Phoenix.LiveView.Socket,
+    websocket: [connect_info: [session: @session_options]],
+    longpoll: [connect_info: [session: @session_options]]
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -20,7 +23,7 @@ defmodule GameoflifeWeb.Endpoint do
     at: "/",
     from: :gameoflife,
     gzip: false,
-    only: ~w(assets fonts images favicon.ico robots.txt)
+    only: GameoflifeWeb.static_paths()
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.

@@ -19,7 +19,7 @@ defmodule GameoflifeWeb.DistributedTest do
   test "The node architecture can be retrieved" do
     [arch: arch, cpus: cpus, memory: memory] = GameoflifeWeb.Distributed.architecture()
 
-    assert arch == 'x86_64-pc-linux-gnu'
+    assert arch == ~c"x86_64-pc-linux-gnu"
     assert cpus == GameoflifeWeb.Distributed.cpus()
     assert memory == {16, :Go}
   end

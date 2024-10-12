@@ -4,7 +4,7 @@ defmodule GameoflifeWeb.WorldLive do
   alias Gameoflife.Events.{Dead, Off, On, Tick, Tock}
 
   defp id(n) do
-    for _ <- 1..n, into: "", do: <<Enum.at('0123456789', :rand.uniform(10) - 1)>>
+    for _ <- 1..n, into: "", do: <<Enum.at(~c"0123456789", :rand.uniform(10) - 1)>>
   end
 
   def mount(%{"id" => id}, _args, socket) do
@@ -80,6 +80,6 @@ defmodule GameoflifeWeb.WorldLive do
   def handle_event("stop", _params, %{assigns: %{world: world}} = socket) do
     :ok = Gameoflife.Supervisor.stop_world(world)
     GameoflifeWeb.PubSub.broadcast("worlds", world)
-    {:noreply, push_redirect(socket, to: Routes.dashboard_path(socket, :index))}
+    {:noreply, push_navigate(socket, to: "/")}
   end
 end

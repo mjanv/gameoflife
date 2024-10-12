@@ -12,8 +12,7 @@ defmodule Gameoflife.Application do
        [Application.get_env(:libcluster, :topologies) || [], [name: Gameoflife.ClusterSupervisor]]}
     ]
 
-    opts = [strategy: :one_for_one, name: GameoflifeEngine.Supervisor]
-    Supervisor.start_link(children, opts)
+    Supervisor.start_link(children, strategy: :one_for_one, name: GameoflifeEngine.Supervisor)
   end
 
   @impl true
