@@ -1,7 +1,16 @@
 defmodule Gameoflife.Clock do
   @moduledoc false
 
-  defstruct id: nil, world: nil, t: 0, real_time: 1
+  @type t() :: %__MODULE__{
+          id: String.t(),
+          world: String.t(),
+          rows: integer(),
+          columns: integer(),
+          t: integer(),
+          real_time: integer()
+        }
+
+  defstruct id: "", world: "", rows: 0, columns: 0, t: 0, real_time: 1
 
   use GenServer
 
@@ -28,25 +37,25 @@ defmodule Gameoflife.Clock do
     Process.send_after(self(), :tick, round(@every / clock.real_time))
     Process.send_after(self(), :tock, round(0.75 * @every / clock.real_time))
 
-    for i <- 0..(clock.world.rows - 1) do
-      for j <- 0..(clock.world.columns - 1) do
-        Gameoflife.Cell.cast(clock.world.id, i, j, %Tick{t: clock.t + 1})
+    for i <- 0..(clock.rows - 1) do
+      for j <- 0..(clock.columns - 1) do
+        Gameoflife.Cell.cast(clock.world, i, j, %Tick{t: clock.t + 1})
       end
     end
 
-    GameoflifeWeb.PubSub.broadcast("world:" <> clock.world.id, %Tick{t: clock.t + 1})
+    GameoflifeWeb.PubSub.broadcast("world:" <> clock.world, %Tick{t: clock.t + 1})
 
     {:noreply, %{clock | t: clock.t + 1}}
   end
 
   def handle_info(:tock, clock) do
-    for i <- 0..(clock.world.rows - 1) do
-      for j <- 0..(clock.world.columns - 1) do
-        Gameoflife.Cell.cast(clock.world.id, i, j, %Tock{t: clock.t + 1})
+    for i <- 0..(clock.rows - 1) do
+      for j <- 0..(clock.columns - 1) do
+        Gameoflife.Cell.cast(clock.world, i, j, %Tock{t: clock.t + 1})
       end
     end
 
-    GameoflifeWeb.PubSub.broadcast("world:" <> clock.world.id, %Tock{t: clock.t + 1})
+    GameoflifeWeb.PubSub.broadcast("world:" <> clock.world, %Tock{t: clock.t + 1})
 
     {:noreply, clock}
   end

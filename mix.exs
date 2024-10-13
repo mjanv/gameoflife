@@ -4,7 +4,7 @@ defmodule Gameoflife.MixProject do
   def project do
     [
       app: :gameoflife,
-      version: "0.1.0",
+      version: "1.1.0",
       elixir: "~> 1.17",
       elixirc_paths: elixirc_paths(Mix.env()),
       elixirc_options: [warnings_as_errors: true],
@@ -71,8 +71,8 @@ defmodule Gameoflife.MixProject do
         "esbuild gameoflife --minify",
         "phx.digest"
       ],
-      quality: ["format --check-formatted", "credo --strict"],
-      test: ["test --trace"],
+      quality: ["format --check-formatted", "credo --strict", "dialyzer"],
+      test: ["test"],
       start: ["phx.server"]
     ]
   end

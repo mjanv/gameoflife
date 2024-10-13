@@ -13,16 +13,12 @@ defmodule Gameoflife.World do
 
   @impl true
   def init(_args) do
-    DynamicSupervisor.init(
-      strategy: :one_for_one,
-      restart: :temporary,
-      max_restarts: 30_000
-    )
+    DynamicSupervisor.init(strategy: :one_for_one, max_restarts: 30_000)
   end
 
-  def new(rows, real_time, failure) do
+  def new(rows, real_time, _failure) do
     world = %World{id: id(4), columns: rows, rows: rows}
-    start_world(world, cells(world, failure) ++ sidecars(world, real_time))
+    start_world(world, cells(world) ++ sidecars(world, real_time))
   end
 
   def start_world(%World{id: id} = world, children) do
@@ -43,16 +39,15 @@ defmodule Gameoflife.World do
     {pid, world}
   end
 
-  def cells(%World{rows: n, columns: m} = world, failure \\ 0) do
+  def cells(%World{rows: n, columns: m} = world) do
     for i <- 0..(n - 1) do
       for j <- 0..(m - 1) do
         %Cell{
-          world: world,
+          world: world.id,
           x: i,
           y: j,
           t: 0,
           neighbors: 0,
-          failure_rate: failure,
           alive?: Enum.random([true, false])
         }
       end
@@ -71,7 +66,13 @@ defmodule Gameoflife.World do
   end
 
   def sidecars(%World{id: id} = world, real_time \\ 1) do
-    clock = %Clock{id: "clock-" <> id, world: world, real_time: real_time}
+    clock = %Clock{
+      id: "clock-" <> id,
+      world: id,
+      rows: world.rows,
+      columns: world.columns,
+      real_time: real_time
+    }
 
     [
       {Gameoflife.Clock,

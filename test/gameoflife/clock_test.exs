@@ -1,5 +1,11 @@
 defmodule Gameoflife.ClockTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
+
+  alias Gameoflife.Clock
+
+  test "clock" do
+    clock = %Clock{id: "id"}
+  end
 
   @tag :benchmark
   test "?" do

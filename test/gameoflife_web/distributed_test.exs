@@ -10,10 +10,7 @@ defmodule GameoflifeWeb.DistributedTest do
   test "The CPU models can be retrieved" do
     cpus = GameoflifeWeb.Distributed.cpus()
 
-    assert cpus == [
-             {:erlang.system_info(:logical_processors_available),
-              "11th Gen Intel(R) Core(TM) i7-1165G7 @ 2.80GHz"}
-           ]
+    assert cpus == [{8, "Intel(R) Core(TM) i7-8565U CPU @ 1.80GHz"}]
   end
 
   test "The node architecture can be retrieved" do
