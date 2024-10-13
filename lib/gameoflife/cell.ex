@@ -34,14 +34,14 @@ defmodule Gameoflife.Cell do
 
   def dispatch([]), do: :ok
 
-  def dispatch([event | tail]) do
-    GameoflifeWeb.PubSub.broadcast("world:" <> event.w, event)
+  def dispatch([%Ping{w: w, x: x, y: y} = event | tail]) do
+    GenServer.cast(Gameoflife.Supervisor.via("cell-#{w}-#{x}-#{y}"), event)
     dispatch(tail)
   end
 
-  @impl true
-  def handle_call(:state, _from, cell) do
-    {:reply, cell, cell}
+  def dispatch([event | tail]) do
+    GameoflifeWeb.PubSub.broadcast("world:" <> event.w, event)
+    dispatch(tail)
   end
 
   @impl true
@@ -58,64 +58,15 @@ defmodule Gameoflife.Cell do
   end
 
   @impl true
-  def handle_cast(%Tick{t: t}, cell) do
-    if cell.alive? do
-      for {i, j} <- [{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}] do
-        cast(cell.world, cell.x + i, cell.y + j, %Ping{t: t})
-      end
-    end
-
-    {:noreply, %{cell | t: t}}
-  end
-
-  @impl true
-  def handle_cast(%Tock{t: t}, cell) do
-    alive? =
-      case {cell.alive?, cell.neighbors} do
-        {true, 2} -> true
-        {_, 3} -> true
-        _ -> false
-      end
-
-    case {cell.alive?, alive?} do
-      {false, true} ->
-        event = %On{t: cell.t, x: cell.x, y: cell.y}
-
-        GameoflifeWeb.PubSub.broadcast("world:" <> cell.world, event)
-
-      {true, false} ->
-        event = %Off{t: cell.t, x: cell.x, y: cell.y}
-
-        GameoflifeWeb.PubSub.broadcast("world:" <> cell.world, event)
-
-      _ ->
-        :ok
-    end
-
-    {:noreply, %{cell | t: t, neighbors: 0, alive?: alive?}}
-  end
-
-  @impl true
-  def handle_cast(%Ping{t: t}, cell) do
-    neighbors =
-      if t == cell.t do
-        cell.neighbors + 1
-      else
-        cell.neighbors
-      end
-
-    {:noreply, %{cell | neighbors: neighbors}}
-  end
-
-  @impl true
-  def handle_cast(_msg, cell) do
+  def handle_cast(event, cell) do
+    {cell, events} = handle(cell, event)
+    dispatch(events)
     {:noreply, cell}
   end
 
   @impl true
   def terminate(_reason, cell) do
-    event = %Dead{t: cell.t, x: cell.x, y: cell.y}
-    GameoflifeWeb.PubSub.broadcast("world:" <> cell.world, event)
+    dispatch([%Dead{w: cell.world, t: cell.t, x: cell.x, y: cell.y}])
   end
 
   def name(%{world: world, x: x, y: y}) do
@@ -163,7 +114,7 @@ defmodule Gameoflife.Cell do
     {cell, events}
   end
 
-  def handle(%__MODULE__{t: t0} = cell, %Tock{t: t}) when t0 + 1 == t do
+  def handle(%__MODULE__{t: t} = cell, %Tock{t: t}) do
     alive? =
       case {cell.alive?, cell.neighbors} do
         {true, 2} -> true
@@ -178,7 +129,7 @@ defmodule Gameoflife.Cell do
         _ -> []
       end
 
-    {%{cell | t: t, neighbors: 0, alive?: alive?}, events}
+    {%{cell | t: t + 1, neighbors: 0, alive?: alive?}, events}
   end
 
   def handle(%__MODULE__{} = cell, _), do: {cell, []}

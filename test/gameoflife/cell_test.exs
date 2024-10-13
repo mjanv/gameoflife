@@ -93,7 +93,7 @@ defmodule Gameoflife.CellTest do
     test "stays alive if it is alive and has two neighbors" do
       cell = %Cell{world: "world", x: 3, y: 4, t: 0, alive?: true, neighbors: 2}
 
-      {%Cell{} = cell, []} = Cell.handle(cell, %Tock{w: "world", t: 1})
+      {%Cell{} = cell, []} = Cell.handle(cell, %Tock{w: "world", t: 0})
 
       assert cell.t == 1
       assert cell.neighbors == 0
@@ -103,7 +103,7 @@ defmodule Gameoflife.CellTest do
     test "becomes alive if it is dead and has three neighbors" do
       cell = %Cell{world: "world", x: 3, y: 4, t: 0, alive?: false, neighbors: 3}
 
-      {%Cell{} = cell, [event]} = Cell.handle(cell, %Tock{w: "world", t: 1})
+      {%Cell{} = cell, [event]} = Cell.handle(cell, %Tock{w: "world", t: 0})
 
       assert cell.t == 1
       assert cell.neighbors == 0
@@ -115,7 +115,7 @@ defmodule Gameoflife.CellTest do
     test "stays alive if it is alive and has three neighbors" do
       cell = %Cell{world: "world", x: 3, y: 4, t: 0, alive?: true, neighbors: 3}
 
-      {%Cell{} = cell, []} = Cell.handle(cell, %Tock{t: 1})
+      {%Cell{} = cell, []} = Cell.handle(cell, %Tock{t: 0})
 
       assert cell.t == 1
       assert cell.neighbors == 0
@@ -127,7 +127,7 @@ defmodule Gameoflife.CellTest do
       test "becomes dead if it is alive and has #{n} neighbors", %{n: n} do
         cell = %Cell{world: "world", x: 3, y: 4, t: 0, alive?: true, neighbors: n}
 
-        {%Cell{} = cell, [event]} = Cell.handle(cell, %Tock{w: "world", t: 1})
+        {%Cell{} = cell, [event]} = Cell.handle(cell, %Tock{w: "world", t: 0})
 
         assert cell.t == 1
         assert cell.neighbors == 0
@@ -142,7 +142,7 @@ defmodule Gameoflife.CellTest do
       test "stays dead if it is dead and has #{n} neighbors", %{n: n} do
         cell = %Cell{world: "world", x: 3, y: 4, t: 0, alive?: false, neighbors: n}
 
-        {%Cell{} = cell, []} = Cell.handle(cell, %Tock{w: "world", t: 1})
+        {%Cell{} = cell, []} = Cell.handle(cell, %Tock{w: "world", t: 0})
 
         assert cell.t == 1
         assert cell.neighbors == 0

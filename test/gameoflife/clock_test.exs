@@ -4,7 +4,7 @@ defmodule Gameoflife.ClockTest do
   alias Gameoflife.Clock
 
   test "clock" do
-    clock = %Clock{id: "id"}
+    _clock = %Clock{id: "id"}
   end
 
   @tag :benchmark

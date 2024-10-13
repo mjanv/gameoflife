@@ -39,25 +39,25 @@ defmodule Gameoflife.Clock do
 
     for i <- 0..(clock.rows - 1) do
       for j <- 0..(clock.columns - 1) do
-        Gameoflife.Cell.cast(clock.world, i, j, %Tick{t: clock.t + 1})
+        Gameoflife.Cell.cast(clock.world, i, j, %Tick{w: clock.world, t: clock.t})
       end
     end
 
-    GameoflifeWeb.PubSub.broadcast("world:" <> clock.world, %Tick{t: clock.t + 1})
+    GameoflifeWeb.PubSub.broadcast("world:" <> clock.world, %Tick{w: clock.world, t: clock.t})
 
-    {:noreply, %{clock | t: clock.t + 1}}
+    {:noreply, clock}
   end
 
   def handle_info(:tock, clock) do
     for i <- 0..(clock.rows - 1) do
       for j <- 0..(clock.columns - 1) do
-        Gameoflife.Cell.cast(clock.world, i, j, %Tock{t: clock.t + 1})
+        Gameoflife.Cell.cast(clock.world, i, j, %Tock{w: clock.world, t: clock.t})
       end
     end
 
-    GameoflifeWeb.PubSub.broadcast("world:" <> clock.world, %Tock{t: clock.t + 1})
+    GameoflifeWeb.PubSub.broadcast("world:" <> clock.world, %Tock{w: clock.world, t: clock.t})
 
-    {:noreply, clock}
+    {:noreply, %{clock | t: clock.t + 1}}
   end
 
   @impl true
