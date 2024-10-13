@@ -17,25 +17,26 @@ defmodule Gameoflife.Cell do
   alias Gameoflife.Events.{Dead, Off, On, Ping, Tick, Tock}
 
   def start_link(args) do
-    GenServer.start_link(__MODULE__, args, name: args[:via])
+    GenServer.start_link(__MODULE__, args[:cell], name: args[:via])
   end
 
   @impl true
   def init(args) do
-    {:ok, args[:cell], {:continue, :broadcast}}
+    {:ok, args, {:continue, :broadcast}}
   end
 
   @impl true
-  def handle_continue(:broadcast, cell) do
-    event =
-      if cell.alive? do
-        %On{t: cell.t, x: cell.x, y: cell.y}
-      else
-        %Off{t: cell.t, x: cell.x, y: cell.y}
-      end
-
-    GameoflifeWeb.PubSub.broadcast("world:" <> cell.world, event)
+  def handle_continue(:broadcast, %{y: y, x: x, alive?: alive?, world: world}) do
+    {cell, events} = handle(world: world, x: x, y: y, alive?: alive?)
+    dispatch(events)
     {:noreply, cell}
+  end
+
+  def dispatch([]), do: :ok
+
+  def dispatch([event | tail]) do
+    GameoflifeWeb.PubSub.broadcast("world:" <> event.w, event)
+    dispatch(tail)
   end
 
   @impl true
@@ -115,6 +116,10 @@ defmodule Gameoflife.Cell do
   def terminate(_reason, cell) do
     event = %Dead{t: cell.t, x: cell.x, y: cell.y}
     GameoflifeWeb.PubSub.broadcast("world:" <> cell.world, event)
+  end
+
+  def name(%{world: world, x: x, y: y}) do
+    "cell-#{world}-#{x}-#{y}"
   end
 
   def name(%__MODULE__{world: world, x: x, y: y}) do

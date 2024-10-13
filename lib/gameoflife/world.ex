@@ -42,12 +42,10 @@ defmodule Gameoflife.World do
   def cells(%World{rows: n, columns: m} = world) do
     for i <- 0..(n - 1) do
       for j <- 0..(m - 1) do
-        %Cell{
+        %{
           world: world.id,
           x: i,
           y: j,
-          t: 0,
-          neighbors: 0,
           alive?: Enum.random([true, false])
         }
       end
