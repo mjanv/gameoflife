@@ -1,6 +1,8 @@
 defmodule GameoflifeWeb.DashboardLive do
   use GameoflifeWeb, :live_view
 
+  alias Gameoflife.Monitoring
+
   def mount(_params, _args, socket) do
     if connected?(socket) do
       Phoenix.PubSub.subscribe(Gameoflife.PubSub, "worlds")
@@ -11,8 +13,8 @@ defmodule GameoflifeWeb.DashboardLive do
        form: %{},
        token: Phoenix.Controller.get_csrf_token(),
        worlds: GameoflifeWeb.Presence.worlds(),
-       nodes: GameoflifeWeb.Distributed.nodes(),
-       architecture: GameoflifeWeb.Distributed.architecture(),
+       nodes: Monitoring.Nodes.list(),
+       architecture: Monitoring.Nodes.architecture(),
        users: GameoflifeWeb.Presence.users()
      )}
   end
@@ -22,15 +24,8 @@ defmodule GameoflifeWeb.DashboardLive do
         %{"rows" => rows, "real_time" => real_time},
         socket
       ) do
-    {_, world} =
-      Gameoflife.World.new(
-        String.to_integer(rows),
-        String.to_integer(real_time),
-        String.to_integer("0")
-      )
-
+    {_, world} = Gameoflife.World.new(String.to_integer(rows), String.to_integer(real_time))
     GameoflifeWeb.PubSub.broadcast("worlds", world)
-
     {:noreply, push_navigate(socket, to: ~p"/world/#{world}")}
   end
 

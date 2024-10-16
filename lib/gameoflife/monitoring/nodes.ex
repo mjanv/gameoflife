@@ -1,10 +1,22 @@
-defmodule GameoflifeWeb.Distributed do
+defmodule Gameoflife.Monitoring.Nodes do
   @moduledoc false
 
-  def nodes do
-    [Node.self()] ++ Node.list()
-  end
+  @type cpu_model() :: String.t()
+  @type cpu() :: {integer(), cpu_model()}
+  @type memory() :: {float(), :Go}
 
+  @doc "Returns the list of current nodes including the local one"
+  @spec list :: [node()]
+  def list, do: [Node.self()] ++ Node.list()
+
+  @doc """
+  Returns the current architecture
+
+  - System architecture (x86_64-pc-linux-gnu,...)
+  - CPU Number and model
+  - Available total memory
+  """
+  @spec architecture :: [arch: list(), cpus: [cpu()], memory: memory()]
   def architecture do
     [
       arch: :erlang.system_info(:system_architecture),
@@ -14,6 +26,8 @@ defmodule GameoflifeWeb.Distributed do
     ]
   end
 
+  @doc "Returns the list of CPUs"
+  @spec cpus :: [{integer(), cpu_model()}]
   def cpus do
     "/proc/cpuinfo"
     |> File.read!()

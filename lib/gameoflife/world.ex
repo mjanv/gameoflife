@@ -1,6 +1,12 @@
 defmodule Gameoflife.World do
   @moduledoc false
 
+  @type t() :: %__MODULE__{
+          id: String.t(),
+          columns: integer(),
+          rows: integer()
+        }
+
   defstruct [:id, :columns, :rows]
 
   use DynamicSupervisor
@@ -16,17 +22,26 @@ defmodule Gameoflife.World do
     DynamicSupervisor.init(strategy: :one_for_one, max_restarts: 30_000)
   end
 
-  def new(rows, real_time, _failure) do
-    world = %World{id: id(4), columns: rows, rows: rows}
-    start_world(world, cells(world) ++ sidecars(world, real_time))
+  @doc "Start a new worlds of size NxN with a specified real-time factor"
+  @spec new(integer(), integer()) :: {pid(), t()}
+  def new(n, real_time) do
+    world = %World{id: id(4), columns: n, rows: n}
+
+    world
+    |> specs(real_time)
+    |> start_world(world)
   end
 
-  def start_world(%World{id: id} = world, children) do
+  defp id(n) do
+    for _ <- 1..n, into: "", do: <<Enum.at(~c"0123456789", :rand.uniform(10) - 1)>>
+  end
+
+  defp start_world(specs, %World{id: id} = world) do
     {:ok, pid} = Gameoflife.Supervisor.start_world(id)
 
     Task.start(fn ->
-      for child <- children do
-        DynamicSupervisor.start_child(pid, child)
+      for spec <- specs do
+        DynamicSupervisor.start_child(pid, spec)
       end
     end)
 
@@ -39,7 +54,11 @@ defmodule Gameoflife.World do
     {pid, world}
   end
 
-  def cells(%World{rows: n, columns: m} = world) do
+  @doc "World cells and clock specification"
+  @spec specs(t(), integer()) :: [{atom(), Keyword.t()}]
+  def specs(world, real_time), do: cells(world) ++ clock(world, real_time)
+
+  defp cells(%World{rows: n, columns: m} = world) do
     for i <- 0..(n - 1) do
       for j <- 0..(m - 1) do
         %{
@@ -63,7 +82,7 @@ defmodule Gameoflife.World do
     end)
   end
 
-  def sidecars(%World{id: id} = world, real_time \\ 1) do
+  def clock(%World{id: id} = world, real_time \\ 1) do
     clock = %{
       id: "clock-" <> id,
       world: id,
@@ -79,9 +98,5 @@ defmodule Gameoflife.World do
          via: Gameoflife.Supervisor.via(Clock.name(clock))
        ]}
     ]
-  end
-
-  defp id(n) do
-    for _ <- 1..n, into: "", do: <<Enum.at(~c"0123456789", :rand.uniform(10) - 1)>>
   end
 end

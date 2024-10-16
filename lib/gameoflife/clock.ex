@@ -31,17 +31,27 @@ defmodule Gameoflife.Clock do
   end
 
   @impl true
-  def handle_info(:tick, clock) do
-    Process.send_after(self(), :tick, round(@every / clock.real_time))
-    Process.send_after(self(), :tock, round(0.75 * @every / clock.real_time))
+  def handle_info(event, clock) do
+    clock
+    |> handle(event)
+    |> tap(fn
+      {clock, [%Tick{}]} ->
+        Process.send_after(self(), :tick, round(@every / clock.real_time))
+        Process.send_after(self(), :tock, round(0.75 * @every / clock.real_time))
 
-    broadcast(clock, %Tick{w: clock.world, t: clock.t})
-    {:noreply, clock}
+      _ ->
+        :ok
+    end)
+    |> tap(fn {clock, [event]} -> broadcast(clock, event) end)
+    |> then(fn {clock, _} -> {:noreply, clock} end)
   end
 
-  def handle_info(:tock, clock) do
-    broadcast(clock, %Tock{w: clock.world, t: clock.t})
-    {:noreply, %{clock | t: clock.t + 1}}
+  def handle(clock, :tick) do
+    {clock, [%Tick{w: clock.world, t: clock.t}]}
+  end
+
+  def handle(clock, :tock) do
+    {%{clock | t: clock.t + 1}, [%Tock{w: clock.world, t: clock.t}]}
   end
 
   def broadcast(clock, event) do
