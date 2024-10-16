@@ -14,7 +14,7 @@ defmodule Gameoflife.Clock do
 
   use GenServer
 
-  alias Gameoflife.Events.{Tick, Tock}
+  alias Gameoflife.Events.{ChangeGridSize, Tick, Tock}
 
   @every 1_000
 
@@ -52,6 +52,10 @@ defmodule Gameoflife.Clock do
 
   def handle(clock, :tock) do
     {%{clock | t: clock.t + 1}, [%Tock{w: clock.world, t: clock.t}]}
+  end
+
+  def handle(clock, %ChangeGridSize{n: n}) do
+    {%{clock | rows: clock.rows + n, columns: clock.columns + n}, []}
   end
 
   def broadcast(clock, event) do

@@ -82,4 +82,8 @@ defmodule GameoflifeWeb.WorldLive do
     GameoflifeWeb.PubSub.broadcast("worlds", world)
     {:noreply, push_navigate(socket, to: "/")}
   end
+
+  def handle_event("increase_size", _params, socket) do
+    {:noreply, socket}
+  end
 end

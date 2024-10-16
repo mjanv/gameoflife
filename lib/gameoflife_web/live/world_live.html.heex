@@ -16,9 +16,9 @@
         - <%= Number.Delimit.number_to_delimited(round(@weight / 1_000_000)) %> MB / second
       <% end %>
     </h2>
-    <button phx-click="stop" type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-      Stop
-    </button>
+    <.button phx-click="stop">Stop</.button>
+    <.button phx-click="increase_size">+</.button>
+    <.button phx-click="decrease_size">-</.button>
     <br \>
     <div class={case @world.rows do
       2 -> "grid grid-cols-2 mt-4 border"
