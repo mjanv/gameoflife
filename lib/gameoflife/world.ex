@@ -64,7 +64,7 @@ defmodule Gameoflife.World do
   end
 
   def sidecars(%World{id: id} = world, real_time \\ 1) do
-    clock = %Clock{
+    clock = %{
       id: "clock-" <> id,
       world: id,
       rows: world.rows,

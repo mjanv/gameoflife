@@ -18,18 +18,16 @@ defmodule Gameoflife.Clock do
 
   @every 1_000
 
-  def name(%__MODULE__{id: id}) do
-    "clock-#{id}"
-  end
+  def name(%{id: id}), do: "clock-#{id}"
 
   def start_link(args) do
-    GenServer.start_link(__MODULE__, args, name: args[:via])
+    GenServer.start_link(__MODULE__, struct(__MODULE__, args[:clock]), name: args[:via])
   end
 
   @impl true
-  def init(args) do
-    Process.send_after(self(), :tick, round(@every / args[:clock].real_time))
-    {:ok, args[:clock]}
+  def init(clock) do
+    Process.send_after(self(), :tick, round(@every / clock.real_time))
+    {:ok, clock}
   end
 
   @impl true
@@ -37,27 +35,23 @@ defmodule Gameoflife.Clock do
     Process.send_after(self(), :tick, round(@every / clock.real_time))
     Process.send_after(self(), :tock, round(0.75 * @every / clock.real_time))
 
-    for i <- 0..(clock.rows - 1) do
-      for j <- 0..(clock.columns - 1) do
-        Gameoflife.Cell.cast(clock.world, i, j, %Tick{w: clock.world, t: clock.t})
-      end
-    end
-
-    GameoflifeWeb.PubSub.broadcast("world:" <> clock.world, %Tick{w: clock.world, t: clock.t})
-
+    broadcast(clock, %Tick{w: clock.world, t: clock.t})
     {:noreply, clock}
   end
 
   def handle_info(:tock, clock) do
+    broadcast(clock, %Tock{w: clock.world, t: clock.t})
+    {:noreply, %{clock | t: clock.t + 1}}
+  end
+
+  def broadcast(clock, event) do
     for i <- 0..(clock.rows - 1) do
       for j <- 0..(clock.columns - 1) do
-        Gameoflife.Cell.cast(clock.world, i, j, %Tock{w: clock.world, t: clock.t})
+        Gameoflife.Cell.cast(clock.world, i, j, event)
       end
     end
 
-    GameoflifeWeb.PubSub.broadcast("world:" <> clock.world, %Tock{w: clock.world, t: clock.t})
-
-    {:noreply, %{clock | t: clock.t + 1}}
+    GameoflifeWeb.PubSub.broadcast("world:" <> clock.world, event)
   end
 
   @impl true

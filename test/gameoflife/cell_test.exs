@@ -8,7 +8,7 @@ defmodule Gameoflife.CellTest do
     for alive? <- [true, false] do
       @tag alive?: alive?
       test "to an initial state with alive?=#{alive?}", %{alive?: alive?} do
-        attrs = [world: "id", x: 3, y: 4, alive?: alive?]
+        attrs = %{world: "id", x: 3, y: 4, alive?: alive?}
 
         {cell, [event]} = Cell.handle(attrs)
 
@@ -158,6 +158,26 @@ defmodule Gameoflife.CellTest do
       assert cell.t == 0
       assert cell.neighbors == 3
       assert cell.alive? == false
+    end
+  end
+
+  describe "A cell receiving a :state message" do
+    test "triggers it current alive state if it is alive" do
+      cell = %Cell{world: "world", x: 3, y: 4, t: 0, alive?: true, neighbors: 2}
+
+      {%Cell{} = new_cell, [event]} = Cell.handle(cell, :state)
+
+      assert new_cell == cell
+      assert event == %On{w: "world", x: 3, y: 4, t: 0}
+    end
+
+    test "triggers it current dead state if it is dead" do
+      cell = %Cell{world: "world", x: 3, y: 4, t: 0, alive?: false, neighbors: 2}
+
+      {%Cell{} = new_cell, [event]} = Cell.handle(cell, :state)
+
+      assert new_cell == cell
+      assert event == %Off{w: "world", x: 3, y: 4, t: 0}
     end
   end
 end
