@@ -36,20 +36,7 @@ defmodule Gameoflife.Events do
     defstruct [:w, :x, :y, :t]
   end
 
-  defmodule On do
-    @moduledoc false
-
-    @type t() :: %__MODULE__{
-            w: String.t(),
-            x: integer(),
-            y: integer(),
-            t: integer()
-          }
-
-    defstruct [:w, :x, :y, :t]
-  end
-
-  defmodule Off do
+  defmodule Alive do
     @moduledoc false
 
     @type t() :: %__MODULE__{
@@ -63,6 +50,19 @@ defmodule Gameoflife.Events do
   end
 
   defmodule Dead do
+    @moduledoc false
+
+    @type t() :: %__MODULE__{
+            w: String.t(),
+            x: integer(),
+            y: integer(),
+            t: integer()
+          }
+
+    defstruct [:w, :x, :y, :t]
+  end
+
+  defmodule Crashed do
     @moduledoc false
 
     @type t() :: %__MODULE__{

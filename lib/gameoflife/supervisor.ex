@@ -20,9 +20,7 @@ defmodule Gameoflife.Supervisor do
     Supervisor.init(children, strategy: :one_for_one)
   end
 
-  def via(id) do
-    {:via, @registry, {Gameoflife.Registry, id}}
-  end
+  def via(id), do: {:via, @registry, {Gameoflife.Registry, id}}
 
   def stop_worlds do
     DynamicSupervisor.stop(Gameoflife.WorldSupervisor)

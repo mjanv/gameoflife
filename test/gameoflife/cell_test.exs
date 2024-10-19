@@ -2,7 +2,7 @@ defmodule Gameoflife.CellTest do
   use ExUnit.Case, async: true
 
   alias Gameoflife.Cell
-  alias Gameoflife.Events.{Off, On, Ping, Tick, Tock}
+  alias Gameoflife.Events.{Dead, Alive, Ping, Tick, Tock}
 
   describe "A cell can be initialized" do
     for alive? <- [true, false] do
@@ -18,9 +18,9 @@ defmodule Gameoflife.CellTest do
         assert cell.alive? == alive?
 
         if alive? do
-          assert event == %On{w: "id", x: 3, y: 4, t: 0}
+          assert event == %Alive{w: "id", x: 3, y: 4, t: 0}
         else
-          assert event == %Off{w: "id", x: 3, y: 4, t: 0}
+          assert event == %Dead{w: "id", x: 3, y: 4, t: 0}
         end
       end
     end
@@ -109,7 +109,7 @@ defmodule Gameoflife.CellTest do
       assert cell.neighbors == 0
       assert cell.alive? == true
 
-      assert event == %On{w: "world", x: 3, y: 4, t: 0}
+      assert event == %Alive{w: "world", x: 3, y: 4, t: 0}
     end
 
     test "stays alive if it is alive and has three neighbors" do
@@ -133,7 +133,7 @@ defmodule Gameoflife.CellTest do
         assert cell.neighbors == 0
         assert cell.alive? == false
 
-        assert event == %Off{w: "world", t: 0, x: 3, y: 4}
+        assert event == %Dead{w: "world", t: 0, x: 3, y: 4}
       end
     end
 
@@ -168,7 +168,7 @@ defmodule Gameoflife.CellTest do
       {%Cell{} = new_cell, [event]} = Cell.handle(cell, :state)
 
       assert new_cell == cell
-      assert event == %On{w: "world", x: 3, y: 4, t: 0}
+      assert event == %Alive{w: "world", x: 3, y: 4, t: 0}
     end
 
     test "triggers it current dead state if it is dead" do
@@ -177,7 +177,7 @@ defmodule Gameoflife.CellTest do
       {%Cell{} = new_cell, [event]} = Cell.handle(cell, :state)
 
       assert new_cell == cell
-      assert event == %Off{w: "world", x: 3, y: 4, t: 0}
+      assert event == %Dead{w: "world", x: 3, y: 4, t: 0}
     end
   end
 end

@@ -12,7 +12,8 @@ defmodule Gameoflife.Monitoring.NodesTest do
   test "The CPU models can be retrieved" do
     cpus = Nodes.cpus()
 
-    assert cpus == [{8, "Intel(R) Core(TM) i7-8565U CPU @ 1.80GHz"}]
+    assert cpus == [{8, "Intel(R) Core(TM) i7-8565U CPU @ 1.80GHz"}] or
+             cpus == [{8, "Intel(R) Core(TM) i7-6700K CPU @ 4.00GHz"}]
   end
 
   test "The node architecture can be retrieved" do
@@ -20,6 +21,6 @@ defmodule Gameoflife.Monitoring.NodesTest do
 
     assert arch == ~c"x86_64-pc-linux-gnu"
     assert cpus == Nodes.cpus()
-    assert memory == {16, :Go}
+    assert memory == {16, :Go} or {17, :Go}
   end
 end

@@ -14,7 +14,7 @@ defmodule Gameoflife.Cell do
 
   use GenServer, restart: :permanent
 
-  alias Gameoflife.Events.{Dead, Off, On, Ping, Tick, Tock}
+  alias Gameoflife.Events.{Crashed, Dead, Alive, Ping, Tick, Tock}
 
   def start_link(args) do
     GenServer.start_link(__MODULE__, args[:cell], name: args[:via])
@@ -27,21 +27,23 @@ defmodule Gameoflife.Cell do
 
   @impl true
   def handle_continue(:new, args) do
-    {cell, events} = handle(args)
-    dispatch(events)
-    {:noreply, cell}
+    args
+    |> handle()
+    |> tap(fn {_, events} -> dispatch(events) end)
+    |> then(fn {cell, _} -> {:noreply, cell} end)
   end
 
   @impl true
   def handle_cast(event, cell) do
-    {cell, events} = handle(cell, event)
-    dispatch(events)
-    {:noreply, cell}
+    cell
+    |> handle(event)
+    |> tap(fn {_, events} -> dispatch(events) end)
+    |> then(fn {cell, _} -> {:noreply, cell} end)
   end
 
   @impl true
   def terminate(_reason, cell) do
-    dispatch([%Dead{w: cell.world, t: cell.t, x: cell.x, y: cell.y}])
+    dispatch([%Crashed{w: cell.world, t: cell.t, x: cell.x, y: cell.y}])
   end
 
   def name(%{world: world, x: x, y: y}) do
@@ -87,8 +89,8 @@ defmodule Gameoflife.Cell do
 
     events =
       case {cell.alive?, alive?} do
-        {false, true} -> [%On{w: cell.world, x: cell.x, y: cell.y, t: cell.t}]
-        {true, false} -> [%Off{w: cell.world, x: cell.x, y: cell.y, t: cell.t}]
+        {false, true} -> [%Alive{w: cell.world, x: cell.x, y: cell.y, t: cell.t}]
+        {true, false} -> [%Dead{w: cell.world, x: cell.x, y: cell.y, t: cell.t}]
         _ -> []
       end
 
@@ -96,10 +98,10 @@ defmodule Gameoflife.Cell do
   end
 
   def handle(%__MODULE__{alive?: true} = cell, :state),
-    do: {cell, [%On{w: cell.world, x: cell.x, y: cell.y, t: cell.t}]}
+    do: {cell, [%Alive{w: cell.world, x: cell.x, y: cell.y, t: cell.t}]}
 
   def handle(%__MODULE__{alive?: false} = cell, :state),
-    do: {cell, [%Off{w: cell.world, x: cell.x, y: cell.y, t: cell.t}]}
+    do: {cell, [%Dead{w: cell.world, x: cell.x, y: cell.y, t: cell.t}]}
 
   def handle(%__MODULE__{} = cell, _), do: {cell, []}
 

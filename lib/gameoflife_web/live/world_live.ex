@@ -1,7 +1,7 @@
 defmodule GameoflifeWeb.WorldLive do
   use GameoflifeWeb, :live_view
 
-  alias Gameoflife.Events.{Dead, Off, On, Tick, Tock}
+  alias Gameoflife.Events.{Crashed, Dead, Alive, Tick, Tock}
 
   defp id(n) do
     for _ <- 1..n, into: "", do: <<Enum.at(~c"0123456789", :rand.uniform(10) - 1)>>
@@ -65,15 +65,15 @@ defmodule GameoflifeWeb.WorldLive do
      )}
   end
 
-  def handle_info(%On{x: x, y: y}, %{assigns: %{buffer: buffer, on: on}} = socket) do
+  def handle_info(%Alive{x: x, y: y}, %{assigns: %{buffer: buffer, on: on}} = socket) do
     {:noreply, assign(socket, on: on + 1, buffer: Map.put(buffer, {x, y}, :on))}
   end
 
-  def handle_info(%Off{x: x, y: y}, %{assigns: %{buffer: buffer}} = socket) do
+  def handle_info(%Dead{x: x, y: y}, %{assigns: %{buffer: buffer}} = socket) do
     {:noreply, assign(socket, buffer: Map.put(buffer, {x, y}, :off))}
   end
 
-  def handle_info(%Dead{x: x, y: y}, %{assigns: %{buffer: buffer}} = socket) do
+  def handle_info(%Crashed{x: x, y: y}, %{assigns: %{buffer: buffer}} = socket) do
     {:noreply, assign(socket, buffer: Map.put(buffer, {x, y}, :dead))}
   end
 

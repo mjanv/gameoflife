@@ -55,17 +55,19 @@ defmodule Gameoflife.World do
   end
 
   @doc "World cells and clock specification"
-  @spec specs(t(), integer()) :: [{atom(), Keyword.t()}]
-  def specs(world, real_time), do: cells(world) ++ clock(world, real_time)
+  @spec specs(t(), integer(), (any() -> boolean())) :: [{atom(), Keyword.t()}]
+  def specs(world, real_time, f \\ fn _ -> Enum.random([true, false]) end) do
+    cells(world, f) ++ clock(world, real_time)
+  end
 
-  defp cells(%World{rows: n, columns: m} = world) do
+  defp cells(%World{rows: n, columns: m} = world, f) do
     for i <- 0..(n - 1) do
       for j <- 0..(m - 1) do
         %{
           world: world.id,
           x: i,
           y: j,
-          alive?: Enum.random([true, false])
+          alive?: f.({i, j})
         }
       end
     end
@@ -98,5 +100,66 @@ defmodule Gameoflife.World do
          via: Gameoflife.Supervisor.via(Clock.name(clock))
        ]}
     ]
+  end
+
+  @doc "World cells and clock specification"
+  @spec delta_specs(t(), integer(), (any() -> boolean())) :: %{
+          required(:joins) => [map()],
+          required(:leaves) => [map()]
+        }
+  def delta_specs(world, n, f \\ fn _ -> Enum.random([true, false]) end)
+
+  def delta_specs(world, n, f) when n > 0 do
+    column =
+      Enum.map(0..(world.columns + n - 1), fn j ->
+        %{world: world.id, x: world.rows, y: j, alive?: f.({world.rows, j})}
+      end)
+
+    row =
+      Enum.map(0..(world.rows + n - 2), fn i ->
+        %{world: world.id, x: i, y: world.columns, alive?: f.({i, world.columns})}
+      end)
+
+    joins =
+      Enum.map(column ++ row, fn cell ->
+        Supervisor.child_spec(
+          {Gameoflife.Cell,
+           [
+             cell: cell,
+             via: Gameoflife.Supervisor.via(Cell.name(cell))
+           ]},
+          id: Cell.name(cell)
+        )
+      end)
+
+    %{joins: joins, leaves: []}
+  end
+
+  def delta_specs(world, n, f) when n <= 0 do
+    column =
+      Enum.map((world.columns - 1)..(world.columns - 1 + n)//-1, fn j ->
+        %{world: world.id, x: world.rows - 1, y: j, alive?: f.({world.rows, j})}
+      end)
+
+    row =
+      Enum.map((world.rows - 2)..(world.rows - 1 + n)//-1, fn i ->
+        %{world: world.id, x: i, y: world.columns - 1, alive?: f.({i, world.columns})}
+      end)
+
+    leaves =
+      column ++ row
+      |> Enum.reverse()
+      |> Enum.map(fn cell ->
+      Supervisor.child_spec(
+        {Gameoflife.Cell,
+         [
+           cell: cell,
+           via: Gameoflife.Supervisor.via(Cell.name(cell))
+         ]},
+        id: Cell.name(cell)
+      )
+    end)
+
+    %{joins: [], leaves: leaves}
   end
 end
