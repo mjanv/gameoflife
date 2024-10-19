@@ -2,7 +2,7 @@ defmodule Gameoflife.CellTest do
   use ExUnit.Case, async: true
 
   alias Gameoflife.Cell
-  alias Gameoflife.Events.{Dead, Alive, Ping, Tick, Tock}
+  alias Gameoflife.Events.{Alive, Dead, Ping, Tick, Tock}
 
   describe "A cell can be initialized" do
     for alive? <- [true, false] do

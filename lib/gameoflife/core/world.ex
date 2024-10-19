@@ -9,49 +9,16 @@ defmodule Gameoflife.World do
 
   defstruct [:id, :columns, :rows]
 
-  use DynamicSupervisor
+  alias Gameoflife.{CellServer, ClockServer}
 
-  alias Gameoflife.{Cell, Clock, World}
-
-  def start_link(args) do
-    DynamicSupervisor.start_link(__MODULE__, args, name: args[:name])
-  end
-
-  @impl true
-  def init(_args) do
-    DynamicSupervisor.init(strategy: :one_for_one, max_restarts: 30_000)
-  end
-
-  @doc "Start a new worlds of size NxN with a specified real-time factor"
-  @spec new(integer(), integer()) :: {pid(), t()}
-  def new(n, real_time) do
-    world = %World{id: id(4), columns: n, rows: n}
-
-    world
-    |> specs(real_time)
-    |> start_world(world)
-  end
-
-  defp id(n) do
-    for _ <- 1..n, into: "", do: <<Enum.at(~c"0123456789", :rand.uniform(10) - 1)>>
-  end
-
-  defp start_world(specs, %World{id: id} = world) do
-    {:ok, pid} = Gameoflife.Supervisor.start_world(id)
-
-    Task.start(fn ->
-      for spec <- specs do
-        DynamicSupervisor.start_child(pid, spec)
-      end
-    end)
-
-    {:ok, _} =
-      GameoflifeWeb.Presence.track(pid, "worlds", id, %{
-        world: world,
-        online_at: DateTime.utc_now()
-      })
-
-    {pid, world}
+  @doc "Create a new world"
+  @spec new(integer()) :: t()
+  def new(n) do
+    %__MODULE__{
+      id: for(_ <- 1..4, into: "", do: <<Enum.at(~c"0123456789", :rand.uniform(10) - 1)>>),
+      columns: n,
+      rows: n
+    }
   end
 
   @doc "World cells and clock specification"
@@ -60,7 +27,7 @@ defmodule Gameoflife.World do
     cells(world, f) ++ clock(world, real_time)
   end
 
-  defp cells(%World{rows: n, columns: m} = world, f) do
+  defp cells(%__MODULE__{rows: n, columns: m} = world, f) do
     for i <- 0..(n - 1) do
       for j <- 0..(m - 1) do
         %{
@@ -74,17 +41,17 @@ defmodule Gameoflife.World do
     |> List.flatten()
     |> Enum.map(fn cell ->
       Supervisor.child_spec(
-        {Gameoflife.Cell,
+        {Gameoflife.CellServer,
          [
            cell: cell,
-           via: Gameoflife.Supervisor.via(Cell.name(cell))
+           via: Gameoflife.CellRegistry.via(CellServer.name(cell))
          ]},
-        id: Cell.name(cell)
+        id: CellServer.name(cell)
       )
     end)
   end
 
-  def clock(%World{id: id} = world, real_time \\ 1) do
+  def clock(%__MODULE__{id: id} = world, real_time \\ 1) do
     clock = %{
       id: "clock-" <> id,
       world: id,
@@ -94,10 +61,10 @@ defmodule Gameoflife.World do
     }
 
     [
-      {Gameoflife.Clock,
+      {Gameoflife.ClockServer,
        [
          clock: clock,
-         via: Gameoflife.Supervisor.via(Clock.name(clock))
+         via: Gameoflife.CellRegistry.via(ClockServer.name(clock))
        ]}
     ]
   end
@@ -123,12 +90,12 @@ defmodule Gameoflife.World do
     joins =
       Enum.map(column ++ row, fn cell ->
         Supervisor.child_spec(
-          {Gameoflife.Cell,
+          {Gameoflife.CellServer,
            [
              cell: cell,
-             via: Gameoflife.Supervisor.via(Cell.name(cell))
+             via: Gameoflife.CellRegistry.via(CellServer.name(cell))
            ]},
-          id: Cell.name(cell)
+          id: CellServer.name(cell)
         )
       end)
 
@@ -147,18 +114,18 @@ defmodule Gameoflife.World do
       end)
 
     leaves =
-      column ++ row
+      (column ++ row)
       |> Enum.reverse()
       |> Enum.map(fn cell ->
-      Supervisor.child_spec(
-        {Gameoflife.Cell,
-         [
-           cell: cell,
-           via: Gameoflife.Supervisor.via(Cell.name(cell))
-         ]},
-        id: Cell.name(cell)
-      )
-    end)
+        Supervisor.child_spec(
+          {Gameoflife.CellServer,
+           [
+             cell: cell,
+             via: Gameoflife.CellRegistry.via(CellServer.name(cell))
+           ]},
+          id: CellServer.name(cell)
+        )
+      end)
 
     %{joins: [], leaves: leaves}
   end

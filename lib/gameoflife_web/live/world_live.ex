@@ -1,7 +1,7 @@
 defmodule GameoflifeWeb.WorldLive do
   use GameoflifeWeb, :live_view
 
-  alias Gameoflife.Events.{Crashed, Dead, Alive, Tick, Tock}
+  alias Gameoflife.Events.{Alive, Crashed, Dead, Tick, Tock}
 
   defp id(n) do
     for _ <- 1..n, into: "", do: <<Enum.at(~c"0123456789", :rand.uniform(10) - 1)>>
@@ -23,7 +23,7 @@ defmodule GameoflifeWeb.WorldLive do
     Task.start(fn ->
       for i <- 0..(world.rows - 1) do
         for j <- 0..(world.columns - 1) do
-          Gameoflife.Cell.cast(world.id, i, j, :state)
+          Gameoflife.CellServer.cast(world.id, i, j, :state)
         end
       end
     end)
@@ -78,7 +78,7 @@ defmodule GameoflifeWeb.WorldLive do
   end
 
   def handle_event("stop", _params, %{assigns: %{world: world}} = socket) do
-    :ok = Gameoflife.Supervisor.stop_world(world)
+    :ok = Gameoflife.WorldSupervisor.stop_world(world.id)
     GameoflifeWeb.PubSub.broadcast("worlds", world)
     {:noreply, push_navigate(socket, to: "/")}
   end

@@ -3,6 +3,16 @@ defmodule Gameoflife.WorldTest do
 
   alias Gameoflife.World
 
+  describe "new/2" do
+    test "create a new world with a specified number of rows and columns" do
+      %World{} = world = World.new(2)
+
+      assert is_binary(world.id) and byte_size(world.id) == 4
+      assert world.columns == 2
+      assert world.rows == 2
+    end
+  end
+
   describe "specs/1" do
     test "generate cells and clock specifications for supervision" do
       world = %World{id: "abcd", columns: 2, rows: 2}
@@ -14,10 +24,10 @@ defmodule Gameoflife.WorldTest do
                cell_spec(0, 1, false, "abcd"),
                cell_spec(1, 0, false, "abcd"),
                cell_spec(1, 1, true, "abcd"),
-               {Gameoflife.Clock,
+               {Gameoflife.ClockServer,
                 [
                   clock: %{id: "clock-abcd", columns: 2, rows: 2, real_time: 1, world: "abcd"},
-                  via: {:via, Horde.Registry, {Gameoflife.Registry, "clock-clock-abcd"}}
+                  via: {:via, Horde.Registry, {Gameoflife.CellRegistry, "clock-clock-abcd"}}
                 ]}
              ]
     end
@@ -49,9 +59,9 @@ defmodule Gameoflife.WorldTest do
       assert specs == %{
                joins: [],
                leaves: [
-                cell_spec(0, 1, true, "abcd"),
-                cell_spec(1, 0, true, "abcd"),
-                cell_spec(1, 1, true, "abcd")
+                 cell_spec(0, 1, true, "abcd"),
+                 cell_spec(1, 0, true, "abcd"),
+                 cell_spec(1, 1, true, "abcd")
                ]
              }
     end
@@ -62,11 +72,11 @@ defmodule Gameoflife.WorldTest do
       id: "cell-#{w}-#{x}-#{y}",
       restart: :permanent,
       start:
-        {Gameoflife.Cell, :start_link,
+        {Gameoflife.CellServer, :start_link,
          [
            [
              cell: %{x: x, y: y, alive?: b, world: w},
-             via: {:via, Horde.Registry, {Gameoflife.Registry, "cell-#{w}-#{x}-#{y}"}}
+             via: {:via, Horde.Registry, {Gameoflife.CellRegistry, "cell-#{w}-#{x}-#{y}"}}
            ]
          ]}
     }

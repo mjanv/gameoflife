@@ -3,7 +3,8 @@ defmodule Gameoflife.ClockTest do
 
   alias Gameoflife.Clock
 
-  alias Gameoflife.Events.{ChangeGridSize, Tick, Tock}
+  alias Gameoflife.Commands.ChangeGridSize
+  alias Gameoflife.Events.{Tick, Tock}
 
   describe "A clock receiving a :tick message" do
     test "generates a Tick event" do

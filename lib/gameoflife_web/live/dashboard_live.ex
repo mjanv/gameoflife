@@ -24,13 +24,13 @@ defmodule GameoflifeWeb.DashboardLive do
         %{"rows" => rows, "real_time" => real_time},
         socket
       ) do
-    {_, world} = Gameoflife.World.new(String.to_integer(rows), String.to_integer(real_time))
+    {_, world} = Gameoflife.WorldServer.new(String.to_integer(rows), String.to_integer(real_time))
     GameoflifeWeb.PubSub.broadcast("worlds", world)
     {:noreply, push_navigate(socket, to: ~p"/world/#{world}")}
   end
 
   def handle_event("stop", _params, socket) do
-    Gameoflife.Supervisor.stop_worlds()
+    Gameoflife.stop_all_worlds()
     socket = assign(socket, :worlds, GameoflifeWeb.Presence.worlds())
     {:noreply, socket}
   end

@@ -74,14 +74,4 @@ defmodule Gameoflife.Events do
 
     defstruct [:w, :x, :y, :t]
   end
-
-  defmodule ChangeGridSize do
-    @moduledoc false
-
-    @type t() :: %__MODULE__{
-            n: integer()
-          }
-
-    defstruct [:n]
-  end
 end

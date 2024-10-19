@@ -1,0 +1,49 @@
+defmodule Gameoflife.ClockServer do
+  @moduledoc false
+
+  use GenServer
+
+  alias Gameoflife.Clock
+  alias Gameoflife.Events.Tick
+
+  @every 1_000
+
+  def name(%{id: id}), do: "clock-#{id}"
+
+  def start_link(args) do
+    GenServer.start_link(__MODULE__, struct(Clock, args[:clock]), name: args[:via])
+  end
+
+  @impl true
+  def init(clock) do
+    Process.send_after(self(), :tick, round(@every / clock.real_time))
+    {:ok, clock}
+  end
+
+  @impl true
+  def handle_info(event, clock) do
+    clock
+    |> Clock.handle(event)
+    |> tap(fn
+      {clock, [%Tick{}]} ->
+        Process.send_after(self(), :tick, round(@every / clock.real_time))
+        Process.send_after(self(), :tock, round(0.75 * @every / clock.real_time))
+
+      _ ->
+        :ok
+    end)
+    |> tap(fn {clock, [event]} ->
+      for i <- 0..(clock.rows - 1) do
+        for j <- 0..(clock.columns - 1) do
+          Gameoflife.CellServer.cast(clock.world, i, j, event)
+        end
+      end
+
+      GameoflifeWeb.PubSub.broadcast("world:" <> clock.world, event)
+    end)
+    |> then(fn {clock, _} -> {:noreply, clock} end)
+  end
+
+  @impl true
+  def terminate(_reason, _clock), do: :ok
+end
