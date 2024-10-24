@@ -20,14 +20,19 @@ defmodule Gameoflife.WorldTest do
       specs = World.specs(world, 1, fn {x, y} -> x == y end)
 
       assert specs == [
+               {Gameoflife.WorldServer,
+                [
+                  world: %{id: "abcd", columns: 2, rows: 2},
+                  via: {:via, Horde.Registry, {Gameoflife.CellRegistry, "world-abcd"}}
+                ]},
                cell_spec(0, 0, true, "abcd"),
                cell_spec(0, 1, false, "abcd"),
                cell_spec(1, 0, false, "abcd"),
                cell_spec(1, 1, true, "abcd"),
                {Gameoflife.ClockServer,
                 [
-                  clock: %{id: "clock-abcd", columns: 2, rows: 2, real_time: 1, world: "abcd"},
-                  via: {:via, Horde.Registry, {Gameoflife.CellRegistry, "clock-clock-abcd"}}
+                  clock: %{id: "abcd", columns: 2, rows: 2, real_time: 1, world: "abcd"},
+                  via: {:via, Horde.Registry, {Gameoflife.CellRegistry, "clock-abcd"}}
                 ]}
              ]
     end
@@ -75,7 +80,7 @@ defmodule Gameoflife.WorldTest do
         {Gameoflife.CellServer, :start_link,
          [
            [
-             cell: %{x: x, y: y, alive?: b, world: w},
+             cell: %{x: x, y: y, alive?: b, w: w},
              via: {:via, Horde.Registry, {Gameoflife.CellRegistry, "cell-#{w}-#{x}-#{y}"}}
            ]
          ]}

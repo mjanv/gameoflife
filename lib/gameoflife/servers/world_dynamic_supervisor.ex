@@ -1,10 +1,12 @@
-defmodule Gameoflife.WorldServer do
+defmodule Gameoflife.WorldDynamicSupervisor do
   @moduledoc false
 
   use DynamicSupervisor
 
   alias Gameoflife.World
 
+  @doc "Start the supervision tree"
+  @spec start_link(any()) :: Supervisor.on_start_child()
   def start_link(args) do
     DynamicSupervisor.start_link(__MODULE__, args, name: args[:name])
   end
@@ -16,27 +18,15 @@ defmodule Gameoflife.WorldServer do
 
   @doc "Start a new world of size NxN with a specified real-time factor"
   @spec new(integer(), integer()) :: {pid(), World.t()}
-  def new(n, real_time) do
-    n
-    |> World.new()
-    |> then(fn world -> {world, World.specs(world, real_time)} end)
-    |> then(fn {world, specs} -> start_world(specs, world) end)
-  end
-
-  defp start_world(specs, %World{id: id} = world) do
-    {:ok, pid} = Gameoflife.WorldSupervisor.start_world(id)
+  def new(n, real_time \\ 1) do
+    world = World.new(n)
+    {:ok, pid} = Gameoflife.WorldSupervisor.start_world(world.id)
 
     Task.start(fn ->
-      for spec <- specs do
+      for spec <- World.specs(world, real_time) do
         DynamicSupervisor.start_child(pid, spec)
       end
     end)
-
-    {:ok, _} =
-      GameoflifeWeb.Presence.track(pid, "worlds", id, %{
-        world: world,
-        online_at: DateTime.utc_now()
-      })
 
     {pid, world}
   end

@@ -3,6 +3,8 @@ defmodule Gameoflife.Supervisor do
 
   use Supervisor
 
+  @doc "Start the supervision tree"
+  @spec start_link(any()) :: Supervisor.on_start_child()
   def start_link(args) do
     Supervisor.start_link(__MODULE__, args, name: __MODULE__)
   end

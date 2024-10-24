@@ -8,8 +8,8 @@ defmodule Gameoflife.ClockServer do
 
   @every 1_000
 
-  def name(%{id: id}), do: "clock-#{id}"
-
+  @doc "Start the clock"
+  @spec start_link(map()) :: GenServer.on_start()
   def start_link(args) do
     GenServer.start_link(__MODULE__, struct(Clock, args[:clock]), name: args[:via])
   end
@@ -35,7 +35,7 @@ defmodule Gameoflife.ClockServer do
     |> tap(fn {clock, [event]} ->
       for i <- 0..(clock.rows - 1) do
         for j <- 0..(clock.columns - 1) do
-          Gameoflife.CellServer.cast(clock.world, i, j, event)
+          Gameoflife.CellServer.cast(%{w: clock.world, x: i, y: j}, event)
         end
       end
 
@@ -45,5 +45,16 @@ defmodule Gameoflife.ClockServer do
   end
 
   @impl true
+  def handle_cast(event, clock) do
+    clock
+    |> Clock.handle(event)
+    |> then(fn {clock, _} -> {:noreply, clock} end)
+  end
+
+  @impl true
   def terminate(_reason, _clock), do: :ok
+
+  @doc "Get the clock name"
+  @spec name(map()) :: String.t()
+  def name(%{id: id}), do: "clock-#{id}"
 end

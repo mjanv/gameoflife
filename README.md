@@ -1,16 +1,22 @@
 # Game of life
 
-
-
 ## Start the project
 
 ```bash
+asdf install
 mix setup
 mix start
 ```
 
 Go to [http://localhost:4000](http://localhost:4000)
 
+## Tests
+
+```bash
+asdf install
+mix quality
+mix test
+```
 
 ## Ressources
 

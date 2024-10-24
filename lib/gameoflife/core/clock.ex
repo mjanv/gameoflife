@@ -1,5 +1,9 @@
 defmodule Gameoflife.Clock do
-  @moduledoc false
+  @moduledoc """
+  Clock core behaviour
+
+  A clock has the role to generate time events to be broadcasted for a cell in a grid.
+  """
 
   @type t() :: %__MODULE__{
           id: String.t(),
@@ -15,6 +19,16 @@ defmodule Gameoflife.Clock do
   alias Gameoflife.Commands.ChangeGridSize
   alias Gameoflife.Events.{Tick, Tock}
 
+  @type event() :: map() | atom()
+
+  @doc """
+  Handle clock lifecycle receiving events
+
+  - Receiving a :tick event generates a Tick event
+  - Receiving a :tock event generates a Tock event and advance the internal clock
+  - Receiving a ChangeGridSize message increase the size of the covered grid
+  """
+  @spec handle(t(), event()) :: {t(), [event()]}
   def handle(clock, :tick) do
     {clock, [%Tick{w: clock.world, t: clock.t}]}
   end

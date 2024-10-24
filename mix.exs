@@ -57,7 +57,9 @@ defmodule Gameoflife.MixProject do
       {:floki, ">= 0.30.0", only: :test},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
-      {:benchee, "~> 1.3", only: [:dev, :test]}
+      {:benchee, "~> 1.3", only: [:dev, :test]},
+      {:ex_doc, "~> 0.34", only: :dev, runtime: false},
+      {:doctor, "~> 0.21.0"}
     ]
   end
 
@@ -73,7 +75,8 @@ defmodule Gameoflife.MixProject do
       ],
       quality: ["format --check-formatted", "credo --strict", "dialyzer"],
       test: ["test"],
-      start: ["phx.server"]
+      start: ["phx.server"],
+      docs: ["doctor", "docs"]
     ]
   end
 end

@@ -26,6 +26,7 @@
       8 -> "grid grid-cols-8 mt-4 border"
       16 -> "grid grid-cols-16 mt-4 border"
       32 -> "grid grid-cols-32 mt-4 border"
+      33 -> "grid grid-cols-33 mt-4 border"
       64 -> "grid grid-cols-64 mt-4 border"
       128 -> "grid grid-cols-128 mt-4 border"
       256 -> "grid grid-cols-256 mt-4 border"
@@ -36,6 +37,7 @@
       <%= for i <- 0..(@world.rows - 1) do %>
         <%= for j <- 0..(@world.columns - 1) do %>
           <div class={case Map.get(@grid, {i, j}) do
+                nil -> "d"
                 :on -> "o"
                 :off -> "c"
                 :dead -> "d"

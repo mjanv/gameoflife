@@ -1,48 +1,58 @@
 defmodule GameoflifeWeb.WorldLive do
+  @moduledoc false
+
   use GameoflifeWeb, :live_view
 
+  alias Gameoflife.Commands.ChangeGridSize
   alias Gameoflife.Events.{Alive, Crashed, Dead, Tick, Tock}
 
-  defp id(n) do
-    for _ <- 1..n, into: "", do: <<Enum.at(~c"0123456789", :rand.uniform(10) - 1)>>
-  end
-
+  @impl true
   def mount(%{"id" => id}, _args, socket) do
     if connected?(socket) do
-      Phoenix.PubSub.subscribe(Gameoflife.PubSub, "world:#{id}")
+      GameoflifeWeb.PubSub.subscribe("world:#{id}")
     end
 
+    id = for _ <- 1..12, into: "", do: <<Enum.at(~c"0123456789", :rand.uniform(10) - 1)>>
+
     {:ok, _} =
-      GameoflifeWeb.Presence.track(self(), "users", id(12), %{
+      GameoflifeWeb.Presence.track(self(), "users", id, %{
         world_id: id,
         online_at: DateTime.utc_now()
       })
 
-    world = GameoflifeWeb.Presence.presence("worlds", id).world
+    case GameoflifeWeb.Presence.presence("worlds", id) do
+      nil ->
+        socket
+        |> put_flash(:error, "World #{id} does not exist")
+        |> push_navigate(to: "/")
+        |> then(fn socket -> {:ok, socket} end)
 
-    Task.start(fn ->
-      for i <- 0..(world.rows - 1) do
-        for j <- 0..(world.columns - 1) do
-          Gameoflife.CellServer.cast(world.id, i, j, :state)
-        end
-      end
-    end)
+      %{world: world} ->
+        Task.start(fn ->
+          for i <- 0..(world.rows - 1) do
+            for j <- 0..(world.columns - 1) do
+              Gameoflife.CellServer.cast(%{w: world.id, x: i, y: j}, :state)
+            end
+          end
+        end)
 
-    grid = Map.new(for i <- 0..(world.rows - 1), j <- 0..(world.columns - 1), do: {{i, j}, :off})
-
-    {:ok,
-     assign(socket,
-       t: nil,
-       id: id,
-       world: world,
-       on: 0,
-       weight: 0,
-       msg: 0,
-       grid: grid,
-       buffer: %{}
-     )}
+        socket
+        |> assign(:t, nil)
+        |> assign(:id, id)
+        |> assign(:world, world)
+        |> assign(:on, 0)
+        |> assign(:weight, 0)
+        |> assign(:msg, 0)
+        |> assign(
+          :grid,
+          Map.new(for i <- 0..(world.rows - 1), j <- 0..(world.columns - 1), do: {{i, j}, :off})
+        )
+        |> assign(:buffer, %{})
+        |> then(fn socket -> {:ok, socket} end)
+    end
   end
 
+  @impl true
   def handle_info(%Tick{}, socket) do
     {:noreply, socket}
   end
@@ -77,13 +87,30 @@ defmodule GameoflifeWeb.WorldLive do
     {:noreply, assign(socket, buffer: Map.put(buffer, {x, y}, :dead))}
   end
 
+  @impl true
   def handle_event("stop", _params, %{assigns: %{world: world}} = socket) do
-    :ok = Gameoflife.WorldSupervisor.stop_world(world.id)
-    GameoflifeWeb.PubSub.broadcast("worlds", world)
-    {:noreply, push_navigate(socket, to: "/")}
+    socket
+    |> tap(fn _ -> Gameoflife.WorldSupervisor.stop_world(world.id) end)
+    |> tap(fn _ -> GameoflifeWeb.PubSub.broadcast("worlds", world) end)
+    |> push_navigate(to: "/")
+    |> then(fn socket -> {:noreply, socket} end)
   end
 
-  def handle_event("increase_size", _params, socket) do
-    {:noreply, socket}
+  def handle_event("increase_size", _params, %{assigns: %{world: world}} = socket) do
+    socket
+    |> tap(fn _ ->
+      GameoflifeWeb.PubSub.broadcast("world:inbound:#{world.id}", %ChangeGridSize{n: 1})
+    end)
+    |> assign(:world, %{world | rows: world.rows + 1, columns: world.columns + 1})
+    |> then(fn socket -> {:noreply, socket} end)
+  end
+
+  def handle_event("decrease_size", _params, %{assigns: %{world: world}} = socket) do
+    socket
+    |> tap(fn _ ->
+      GameoflifeWeb.PubSub.broadcast("world:inbound:#{world.id}", %ChangeGridSize{n: -1})
+    end)
+    |> assign(:world, %{world | rows: world.rows - 1, columns: world.columns - 1})
+    |> then(fn socket -> {:noreply, socket} end)
   end
 end

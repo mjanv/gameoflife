@@ -24,14 +24,14 @@ defmodule Gameoflife.World do
   @doc "World cells and clock specification"
   @spec specs(t(), integer(), (any() -> boolean())) :: [{atom(), Keyword.t()}]
   def specs(world, real_time, f \\ fn _ -> Enum.random([true, false]) end) do
-    cells(world, f) ++ clock(world, real_time)
+    world(world) ++ cells(world, f) ++ clock(world, real_time)
   end
 
   defp cells(%__MODULE__{rows: n, columns: m} = world, f) do
     for i <- 0..(n - 1) do
       for j <- 0..(m - 1) do
         %{
-          world: world.id,
+          w: world.id,
           x: i,
           y: j,
           alive?: f.({i, j})
@@ -51,9 +51,9 @@ defmodule Gameoflife.World do
     end)
   end
 
-  def clock(%__MODULE__{id: id} = world, real_time \\ 1) do
+  defp clock(%__MODULE__{id: id} = world, real_time) do
     clock = %{
-      id: "clock-" <> id,
+      id: id,
       world: id,
       rows: world.rows,
       columns: world.columns,
@@ -69,6 +69,22 @@ defmodule Gameoflife.World do
     ]
   end
 
+  defp world(%__MODULE__{id: id} = world) do
+    world = %{
+      id: id,
+      rows: world.rows,
+      columns: world.columns
+    }
+
+    [
+      {Gameoflife.WorldServer,
+       [
+         world: world,
+         via: Gameoflife.CellRegistry.via("world-#{id}")
+       ]}
+    ]
+  end
+
   @doc "World cells and clock specification"
   @spec delta_specs(t(), integer(), (any() -> boolean())) :: %{
           required(:joins) => [map()],
@@ -79,12 +95,12 @@ defmodule Gameoflife.World do
   def delta_specs(world, n, f) when n > 0 do
     column =
       Enum.map(0..(world.columns + n - 1), fn j ->
-        %{world: world.id, x: world.rows, y: j, alive?: f.({world.rows, j})}
+        %{w: world.id, x: world.rows, y: j, alive?: f.({world.rows, j})}
       end)
 
     row =
       Enum.map(0..(world.rows + n - 2), fn i ->
-        %{world: world.id, x: i, y: world.columns, alive?: f.({i, world.columns})}
+        %{w: world.id, x: i, y: world.columns, alive?: f.({i, world.columns})}
       end)
 
     joins =
@@ -105,12 +121,12 @@ defmodule Gameoflife.World do
   def delta_specs(world, n, f) when n <= 0 do
     column =
       Enum.map((world.columns - 1)..(world.columns - 1 + n)//-1, fn j ->
-        %{world: world.id, x: world.rows - 1, y: j, alive?: f.({world.rows, j})}
+        %{w: world.id, x: world.rows - 1, y: j, alive?: f.({world.rows, j})}
       end)
 
     row =
       Enum.map((world.rows - 2)..(world.rows - 1 + n)//-1, fn i ->
-        %{world: world.id, x: i, y: world.columns - 1, alive?: f.({i, world.columns})}
+        %{w: world.id, x: i, y: world.columns - 1, alive?: f.({i, world.columns})}
       end)
 
     leaves =

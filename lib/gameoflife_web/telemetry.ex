@@ -1,24 +1,29 @@
 defmodule GameoflifeWeb.Telemetry do
+  @moduledoc false
+
   use Supervisor
+
   import Telemetry.Metrics
 
-  def start_link(arg) do
-    Supervisor.start_link(__MODULE__, arg, name: __MODULE__)
+  @doc "Start the telemetry"
+  @spec start_link(any()) :: Supervisor.on_start_child()
+  def start_link(args) do
+    Supervisor.start_link(__MODULE__, args, name: __MODULE__)
   end
 
+  @doc "Init the telemetry"
   @impl true
-  def init(_arg) do
+  def init(_args) do
     children = [
-      # Telemetry poller will execute the given period measurements
-      # every 10_000ms. Learn more here: https://hexdocs.pm/telemetry_metrics
       {:telemetry_poller, measurements: periodic_measurements(), period: 10_000}
-      # Add reporters as children of your supervision tree.
       # {Telemetry.Metrics.ConsoleReporter, metrics: metrics()}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
   end
 
+  @doc "Metrics list"
+  @spec metrics() :: [any()]
   def metrics do
     [
       # Phoenix Metrics

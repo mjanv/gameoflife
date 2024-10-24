@@ -6,6 +6,8 @@ defmodule Gameoflife.CellServer do
   alias Gameoflife.Cell
   alias Gameoflife.Events.{Crashed, Ping}
 
+  @doc "Start the cell"
+  @spec start_link(map()) :: GenServer.on_start()
   def start_link(args) do
     GenServer.start_link(__MODULE__, args[:cell], name: args[:via])
   end
@@ -36,21 +38,24 @@ defmodule Gameoflife.CellServer do
     dispatch([%Crashed{w: cell.world, t: cell.t, x: cell.x, y: cell.y}])
   end
 
-  def name(%{world: world, x: x, y: y}), do: "cell-#{world}-#{x}-#{y}"
+  @doc "Get the cell name"
+  @spec name(%{w: String.t(), x: integer(), y: integer()}) :: String.t()
+  def name(%{w: w, x: x, y: y}), do: "cell-#{w}-#{x}-#{y}"
 
-  def cast(id, x, y, msg) do
-    GenServer.cast(Gameoflife.CellRegistry.via("cell-#{id}-#{x}-#{y}"), msg)
+  @doc "Cast a message to a cell"
+  @spec cast(%{w: String.t(), x: integer(), y: integer()}, map() | atom()) :: :ok
+  def cast(%{w: _, x: _, y: _} = cell, event) do
+    GenServer.cast(Gameoflife.CellRegistry.via(name(cell)), event)
   end
 
+  @doc "Dispatch events to Genservers or PubSub"
+  @spec dispatch([map() | atom()]) :: :ok
   def dispatch(events) when is_list(events) do
     Enum.each(
       events,
       fn
-        %Ping{w: w, x: x, y: y} = event ->
-          GenServer.cast(Gameoflife.CellRegistry.via("cell-#{w}-#{x}-#{y}"), event)
-
-        %{w: w} = event ->
-          GameoflifeWeb.PubSub.broadcast("world:#{w}", event)
+        %Ping{w: w, x: x, y: y} = event -> cast(%{w: w, x: x, y: y}, event)
+        %{w: w} = event -> GameoflifeWeb.PubSub.broadcast("world:#{w}", event)
       end
     )
   end

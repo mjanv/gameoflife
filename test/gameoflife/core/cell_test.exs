@@ -8,7 +8,7 @@ defmodule Gameoflife.CellTest do
     for alive? <- [true, false] do
       @tag alive?: alive?
       test "to an initial state with alive?=#{alive?}", %{alive?: alive?} do
-        attrs = %{world: "id", x: 3, y: 4, alive?: alive?}
+        attrs = %{w: "id", x: 3, y: 4, alive?: alive?}
 
         {cell, [event]} = Cell.handle(attrs)
 

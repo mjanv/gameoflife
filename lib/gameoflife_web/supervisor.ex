@@ -3,12 +3,14 @@ defmodule GameoflifeWeb.Supervisor do
 
   use Supervisor
 
-  def start_link(init_arg) do
-    Supervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
+  @doc "Start the supervision tree"
+  @spec start_link(any()) :: Supervisor.on_start_child()
+  def start_link(args) do
+    Supervisor.start_link(__MODULE__, args, name: __MODULE__)
   end
 
   @impl true
-  def init(_init_arg) do
+  def init(_args) do
     children = [
       GameoflifeWeb.Telemetry,
       {Phoenix.PubSub, name: Gameoflife.PubSub},
