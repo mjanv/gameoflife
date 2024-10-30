@@ -1,5 +1,12 @@
 defmodule GameoflifeWeb.PubSub do
-  @moduledoc false
+  @moduledoc """
+
+  Known PubSub topics:
+
+  - `worlds`: broadcasted when a world is created or destroyed
+  - `world:in:<id>`: broadcasted to send information to a world
+  - `world:out:<id>`: broadcasted to receive updates from a world
+  """
 
   @doc "Broadcast a message to a topic"
   @spec broadcast(String.t(), any()) :: :ok

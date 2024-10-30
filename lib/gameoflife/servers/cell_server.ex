@@ -55,7 +55,7 @@ defmodule Gameoflife.CellServer do
       events,
       fn
         %Ping{w: w, x: x, y: y} = event -> cast(%{w: w, x: x, y: y}, event)
-        %{w: w} = event -> GameoflifeWeb.PubSub.broadcast("world:#{w}", event)
+        %{w: w} = event -> GameoflifeWeb.PubSub.broadcast("world:in:#{w}", event)
       end
     )
   end

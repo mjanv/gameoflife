@@ -12,17 +12,22 @@
 
 
 @layer base {
-  .o {
+  .a {
     @apply w-full pb-full bg-gray-900;
   }
 
-  .c {
+  .d {
     @apply w-full pb-full bg-white;
   }
 
-  .d {
+  .c {
     @apply w-full pb-full bg-red-300;
   }
+}
+.okay {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10px, 1fr));
+  gap: 1px; /* Small gap to visually separate cells */
 }
 
 /* Alerts and form errors used by phx.new */

@@ -3,6 +3,8 @@ defmodule Gameoflife.WorldServer do
 
   use GenServer
 
+  require Logger
+
   alias Gameoflife.Commands.ChangeGridSize
   alias Gameoflife.World
 
@@ -14,19 +16,16 @@ defmodule Gameoflife.WorldServer do
 
   @impl true
   def init(world) do
-    GameoflifeWeb.PubSub.subscribe("world:inbound:#{world.id}")
-
-    {:ok, _} =
-      GameoflifeWeb.Presence.track(self(), "worlds", world.id, %{
-        world: world,
-        online_at: DateTime.utc_now()
-      })
+    GameoflifeWeb.PubSub.subscribe("world:out:#{world.id}")
+    :ok = GameoflifeWeb.Presence.follow("worlds", world.id, %{world: world})
 
     {:ok, world}
   end
 
   @impl true
   def handle_info(%ChangeGridSize{n: n} = command, %{rows: rows, columns: columns} = world) do
+    Logger.info("ChangeGridSize #{inspect(world)} #{n}")
+
     GenServer.cast(
       {:via, Horde.Registry, {Gameoflife.CellRegistry, "clock-#{world.id}"}},
       command

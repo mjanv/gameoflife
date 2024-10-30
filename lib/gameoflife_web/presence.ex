@@ -32,4 +32,19 @@ defmodule GameoflifeWeb.Presence do
       _ -> nil
     end
   end
+
+  @doc "Track a process inside the presence"
+  @spec follow(String.t(), String.t(), map()) :: :ok | :error
+  def follow(topic, id, metadata \\ %{}) do
+    self()
+    |> GameoflifeWeb.Presence.track(
+      topic,
+      id,
+      %{online_at: DateTime.utc_now()} |> Map.merge(metadata)
+    )
+    |> case do
+      {:ok, _} -> :ok
+      {:error, _} -> :error
+    end
+  end
 end

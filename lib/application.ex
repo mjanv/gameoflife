@@ -9,7 +9,7 @@ defmodule Gameoflife.Application do
       GameoflifeWeb.Supervisor,
       Gameoflife.Supervisor,
       {Cluster.Supervisor,
-       [Application.get_env(:libcluster, :topologies) || [], [name: Gameoflife.ClusterSupervisor]]}
+       [Application.get_env(:libcluster, :topologies, []), [name: Gameoflife.ClusterSupervisor]]}
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: GameoflifeEngine.Supervisor)

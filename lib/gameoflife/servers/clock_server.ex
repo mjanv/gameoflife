@@ -39,7 +39,7 @@ defmodule Gameoflife.ClockServer do
         end
       end
 
-      GameoflifeWeb.PubSub.broadcast("world:" <> clock.world, event)
+      GameoflifeWeb.PubSub.broadcast("world:in:" <> clock.world, event)
     end)
     |> then(fn {clock, _} -> {:noreply, clock} end)
   end

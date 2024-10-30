@@ -1,5 +1,10 @@
 defmodule Gameoflife.World do
-  @moduledoc false
+  @moduledoc """
+  A world is a grid of cells
+
+  The x-axis represents the horizontal axis and the y-axis represents the vertical axis. The zero location is the top-left corner of the grid.
+
+  """
 
   @type t() :: %__MODULE__{
           id: String.t(),
@@ -19,6 +24,12 @@ defmodule Gameoflife.World do
       columns: n,
       rows: n
     }
+  end
+
+  @doc "Create an empty grid"
+  @spec empty_grid(t(), atom()) :: %{{integer(), integer()} => atom()}
+  def empty_grid(%__MODULE__{rows: rows, columns: columns}, fill \\ :d) do
+    Map.new(for i <- 0..(rows - 1), j <- 0..(columns - 1), do: {{i, j}, fill})
   end
 
   @doc "World cells and clock specification"

@@ -7,13 +7,14 @@
       <%= if not is_nil(@t) do %>
         - <%= Enum.at(["🕛", "🕒", "🕧", "🕘"], rem(@t, 4)) %> Tick <%= @t %>
       <% end %>
-      <%= if not is_nil(@msg) do %>
-        - <%= Number.Delimit.number_to_delimited(@msg * 60 * 60) %> messages / hour
-        - <%= Number.Delimit.number_to_delimited(@msg * 60) %> messages / minute
-        - <%= Number.Delimit.number_to_delimited(@msg) %> messages / second
-        - <%= Number.Delimit.number_to_delimited(round(@weight * 60 * 60 / 1_000_000)) %> MB / hour
-        - <%= Number.Delimit.number_to_delimited(round(@weight * 60 / 1_000_000)) %> MB / minute
-        - <%= Number.Delimit.number_to_delimited(round(@weight / 1_000_000)) %> MB / second
+      <%= if not is_nil(@stats.alive) do %>
+        - <%= Number.Delimit.number_to_delimited(@stats.alive) %> alive
+      <% end %>
+      <%= if not is_nil(@stats.messages) do %>
+        - <%= Number.Delimit.number_to_delimited(@stats.messages) %> messages / second
+      <% end %>
+      <%= if not is_nil(@stats.size) do %>
+        - <%= Number.Delimit.number_to_delimited(round(@stats.size / 1_000_000)) %> MB / second
       <% end %>
     </h2>
     <.button phx-click="stop">Stop</.button>
@@ -21,7 +22,7 @@
     <.button phx-click="decrease_size">-</.button>
     <br \>
     <div class={case @world.rows do
-      2 -> "grid grid-cols-2 mt-4 border"
+      2 -> "grid grid-cols-[repeat({@world.rows}, minmax(0, 1fr))] mt-4 border"
       4 -> "grid grid-cols-4 mt-4 border"
       8 -> "grid grid-cols-8 mt-4 border"
       16 -> "grid grid-cols-16 mt-4 border"
@@ -38,9 +39,9 @@
         <%= for j <- 0..(@world.columns - 1) do %>
           <div class={case Map.get(@grid, {i, j}) do
                 nil -> "d"
-                :on -> "o"
-                :off -> "c"
-                :dead -> "d"
+                :a -> "a"
+                :d -> "d"
+                :c -> "c"
               end}></div>
         <% end %>
       <% end %>
