@@ -5,7 +5,7 @@ defmodule GameoflifeWeb.WorldLive do
 
   alias Gameoflife.Commands.ChangeGridSize
   alias Gameoflife.Events.{Alive, Crashed, Dead, Tick, Tock}
-  alias Gameoflife.Monitoring.Worlds
+  alias Gameoflife.Monitoring.WorldMonitor
   alias Gameoflife.World
 
   @impl true
@@ -51,7 +51,7 @@ defmodule GameoflifeWeb.WorldLive do
     socket
     |> assign(:t, t)
     |> assign(:alive, 0)
-    |> assign(:stats, Worlds.counter(world, alive))
+    |> assign(:stats, WorldMonitor.counter(world, alive))
     |> assign(:grid, Map.merge(grid, buffer))
     |> assign(:buffer, %{})
     |> then(fn socket -> {:noreply, socket} end)

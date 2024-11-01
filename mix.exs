@@ -10,6 +10,7 @@ defmodule Gameoflife.MixProject do
       elixirc_options: [warnings_as_errors: true],
       compilers: Mix.compilers(),
       start_permanent: Mix.env() == :prod,
+      preferred_envs: [quality: :dev, test: :test],
       aliases: aliases(),
       deps: deps()
     ]
@@ -80,3 +81,4 @@ defmodule Gameoflife.MixProject do
     ]
   end
 end
+System.cmd("mix", ["test"], env: [{"MIX_ENV", "test"}])
