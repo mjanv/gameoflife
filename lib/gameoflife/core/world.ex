@@ -6,6 +6,8 @@ defmodule Gameoflife.World do
 
   """
 
+  alias Gameoflife.{CellServer, ClockServer}
+
   @type t() :: %__MODULE__{
           id: String.t(),
           columns: integer(),
@@ -13,8 +15,6 @@ defmodule Gameoflife.World do
         }
 
   defstruct [:id, :columns, :rows]
-
-  alias Gameoflife.{CellServer, ClockServer}
 
   @doc "Create a new world"
   @spec new(integer()) :: t()

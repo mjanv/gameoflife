@@ -1,122 +1,101 @@
 
-<div class="bg-white py-16 px-4 overflow-hidden sm:px-6 lg:px-8 lg:py-24">
-  <div class="relative max-w-xl mx-auto">
-    <div class="text-center">
-      <h2 class="text-4xl font-extrabold tracking-tight text-gray-900">👾 Distributed Game of Life</h2>
-    </div>
-    <div class="mt-12 text-center">
-      <h2 class="text-3xl font-extrabold tracking-tight text-gray-900">🚀 Start a new world</h2>
-    </div>
-    <div class="mt-6">
-      <.form for={@form} phx-submit="save" class="grid grid-cols-2 gap-y-6 gap-x-8">
-        <input type="hidden" name="_csrf_token" value={@token} />
-        <div>
-          <label for="rows" class="block text-xl font-medium text-gray-700">Size</label>
-          <select id="rows" name="rows" class="mt-2 block w-full pl-3 pr-10 py-2 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-l rounded-md">
-              <%= for i <- [16, 32, 64, 128, 256, 320, 512, 1_000] do %>
-                  <option value={i}><%= i %>x<%= i %> | <%= i * i %> cells</option>
-              <% end %>
-          </select>
-        </div>
-        <div>
-          <label for="real_time" class="block text-xl font-medium text-gray-700">Real-time</label>
-          <select id="real_time" name="real_time" class="mt-2 block w-full pl-3 pr-10 py-2 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-l rounded-md">
-              <%= for i <- [1, 2, 3, 4] do %>
-                  <option value={i}><%= i %>x</option>
-              <% end %>
-          </select>
-        </div>
-        <!--
-        <div>
-          <label for="failure" class="block text-xl font-medium text-gray-700">Cell failure probability</label>
-          <select id="failure" name="failure" class="mt-2 block w-full pl-3 pr-10 py-2 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-l rounded-md">
-              <%= for p <- [0, 2, 5, 10, 25, 50, 75] do %>
-                  <option value={p}><%= p %>%</option>
-              <% end %>
-          </select>
-        </div>
-        -->
-        <div class="sm:col-span-2">
-          <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-2xl font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Start</button>
-        </div>
-      </.form>
-    </div>
+<div class="bg-white py-4 px-4 overflow-hidden">
+  <div class="text-center">
+    <h2 class="text-4xl font-extrabold tracking-tight text-gray-900">👾 Distributed Game of Life</h2>
+  </div>
+  <div class="grid grid-cols-2 gap-4">
 
-
-    <div class="mt-10 text-center">
-      <h2 class="text-3xl font-extrabold tracking-tight text-gray-900"> <%= length(@nodes) %> Erlang nodes</h2>
-    </div>
-
-    <ul role="list" class="divide-y divide-gray-200">
-      <div class="mt-5 text-center">
-        <h2 class="text-xl font-bold tracking-tight text-gray-900">Current node - <%= hd(@nodes) %></h2>
-        <span class="inline-flex items-center mt-2 px-3 py-0.5 rounded-full text-m font-medium bg-green-100 text-green-800">
-          Architecture | <%= @architecture[:arch] %>
-        </span>
-        <span class="inline-flex items-center mt-2 px-3 py-0.5 rounded-full text-m font-medium bg-yellow-100 text-yellow-800">
-          Memory | <%= elem(@architecture[:memory], 0) %>Go
-        </span>
-        <%= for cpu <- @architecture[:cpus] do %>
-          <span class="inline-flex items-center mt-2 px-3 py-0.5 rounded-full text-m font-medium bg-purple-100 text-purple-800">
-            CPUs | <%= elem(cpu, 0) %> x <%= elem(cpu, 1) %>
-          </span>
-        <% end %>
+    <div class="col-span-1 text-center">
+      <div class="mt-12 text-center">
+        <h2 class="text-3xl font-extrabold tracking-tight text-gray-900">🚀 Start a new world</h2>
       </div>
-
-      <%= for node <- tl(@nodes) do %>
-        <div class="mt-5 text-center">
-          <h2 class="text-xl font-bold tracking-tight text-gray-900"><%= node %></h2>
-        </div>
-      <% end %>
-    </ul>
-
-    <div class="mt-5 relative">
-      <div class="absolute inset-0 flex items-center" aria-hidden="true">
-        <div class="w-full border-t border-gray-300"></div>
+      <div class="mt-6">
+        <.form for={@form} phx-submit="save" class="grid grid-cols-2 gap-y-6 gap-x-8">
+          <input type="hidden" name="_csrf_token" value={@token} />
+          <div>
+            <label for="rows" class="block text-xl font-medium text-gray-700">Size</label>
+            <select id="rows" name="rows" class="mt-2 block w-full pl-3 pr-10 py-2 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-l rounded-md">
+                <%= for i <- [16, 32, 64, 128, 256, 320, 512, 1_000] do %>
+                    <option value={i}><%= i %>x<%= i %> | <%= i * i %> cells</option>
+                <% end %>
+            </select>
+          </div>
+          <div>
+            <label for="real_time" class="block text-xl font-medium text-gray-700">Real-time</label>
+            <select id="real_time" name="real_time" class="mt-2 block w-full pl-3 pr-10 py-2 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-l rounded-md">
+                <%= for i <- [1, 2, 3, 4] do %>
+                    <option value={i}><%= i %>x</option>
+                <% end %>
+            </select>
+          </div>
+          <!--
+          <div>
+            <label for="failure" class="block text-xl font-medium text-gray-700">Cell failure probability</label>
+            <select id="failure" name="failure" class="mt-2 block w-full pl-3 pr-10 py-2 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-l rounded-md">
+                <%= for p <- [0, 2, 5, 10, 25, 50, 75] do %>
+                    <option value={p}><%= p %>%</option>
+                <% end %>
+            </select>
+          </div>
+          -->
+          <div class="sm:col-span-2">
+            <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-2xl font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Start</button>
+          </div>
+        </.form>
       </div>
     </div>
-
-    <div class="mt-10 text-center">
-      <h2 class="text-3xl font-extrabold tracking-tight text-gray-900">📺 <%= map_size(@users) %> viewers online</h2>
-    </div>
-
-    <div class="mt-5 relative">
-      <div class="absolute inset-0 flex items-center" aria-hidden="true">
-        <div class="w-full border-t border-gray-300"></div>
-      </div>
-    </div>
-
-    <div class="mt-10 text-center">
-      <h2 class="text-3xl font-extrabold tracking-tight text-gray-900">
-        🦠 <%= Enum.sum(Enum.map(@worlds, fn {_, m} -> m.world.rows * m.world.columns end)) %> cells living
+    <div class="col-span-1">
+      <h2 class="mt-12 text-center text-3xl font-extrabold tracking-tight text-gray-900">
+        📺 <%= map_size(@users) %> Viewers online
       </h2>
     </div>
-
-    <div class="mt-5 relative">
-      <div class="absolute inset-0 flex items-center" aria-hidden="true">
-        <div class="w-full border-t border-gray-300"></div>
-      </div>
-    </div>
-
-    <div class="mt-10 text-center">
-      <h2 class="text-3xl font-extrabold tracking-tight text-gray-900">🌎 <%= map_size(@worlds) %> worlds online</h2>
-      <button phx-click="stop" type="button" class="items-center mt-2 px-2 py-1 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Stop all worlds</button>
-    </div>
-
-    <ul role="list" class="divide-y divide-gray-200">
-      <%= for {id, meta} <- @worlds do %>
-        <li class="py-4 flex">
-          <span class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-gray-500">
-            <span class="text-lg font-medium leading-none text-white"><%= id %></span>
+    <div class="col-span-1">
+      <h2 class="mt-12 text-center text-3xl font-extrabold tracking-tight text-gray-900">
+        📺 <%= length(@nodes) %> Erlang nodes
+      </h2>
+      <ul role="list" class="divide-y divide-gray-200">
+        <div class="mt-5 text-center">
+          <h2 class="text-xl font-bold tracking-tight text-gray-900">Current node - <%= hd(@nodes) %></h2>
+          <span class="inline-flex items-center mt-2 px-3 py-0.5 rounded-full text-m font-medium bg-green-100 text-green-800">
+            Architecture | <%= @architecture[:arch] %>
           </span>
-          <div class="ml-3">
-           <.link class="text-l font-medium text-gray-900" href={~p"/world/#{id}"}>
-            <%= World #{id} - 🦠 #{meta.world.rows * meta.world.columns} cells (#{meta.world.rows} x #{meta.world.columns}) %>
-           </.link>
-           <p class="text-m text-gray-700">Online at <%= DateTime.truncate(meta.online_at, :second) %></p>
+          <span class="inline-flex items-center mt-2 px-3 py-0.5 rounded-full text-m font-medium bg-yellow-100 text-yellow-800">
+            Memory | <%= elem(@architecture[:memory], 0) %>Go
+          </span>
+          <%= for {a, b} <- @architecture[:cpus] do %>
+            <span class="inline-flex items-center mt-2 px-3 py-0.5 rounded-full text-m font-medium bg-purple-100 text-purple-800">
+              CPUs | <%= a %> x <%= b %>
+            </span>
+          <% end %>
+        </div>
+    
+        <%= for node <- tl(@nodes) do %>
+          <div class="mt-5 text-center">
+            <h2 class="text-xl font-bold tracking-tight text-gray-900"><%= node %></h2>
           </div>
-        </li>
-      <% end %>
-    </ul>
+        <% end %>
+      </ul>
+    </div>
+    <div class="col-span-1">
+      <h2 class="mt-12 text-center text-3xl font-extrabold tracking-tight text-gray-900">
+        🌎 <%= map_size(@worlds) %> worlds online
+      </h2>
+      <button phx-click="stop" type="button" class="items-center mt-2 px-2 py-1 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Stop all worlds</button>
+      <ul role="list" class="divide-y divide-gray-200">
+        <%= for {id, meta} <- @worlds do %>
+          <li class="py-4 flex">
+            <span class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-gray-500">
+              <span class="text-lg font-medium leading-none text-white"><%= id %></span>
+            </span>
+            <div class="ml-3">
+              <.link class="text-l font-medium text-gray-900" href={~p"/world/#{id}"}>
+              <%= World #{id} - 🦠 #{meta.world.rows * meta.world.columns} cells (#{meta.world.rows} x #{meta.world.columns}) %>
+              </.link>
+              <p class="text-m text-gray-700">Online at <%= DateTime.truncate(meta.online_at, :second) %></p>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    </div>
   </div>
 </div>

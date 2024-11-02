@@ -81,4 +81,3 @@ defmodule Gameoflife.MixProject do
     ]
   end
 end
-System.cmd("mix", ["test"], env: [{"MIX_ENV", "test"}])
