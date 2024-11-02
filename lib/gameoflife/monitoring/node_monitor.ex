@@ -4,6 +4,11 @@ defmodule Gameoflife.Monitoring.NodeMonitor do
   @type cpu_model() :: String.t()
   @type cpu() :: {integer(), cpu_model()}
   @type memory() :: {float(), :Go}
+  @type architecture :: [
+          arch: charlist(),
+          cpus: [cpu()],
+          memory: memory()
+        ]
 
   @doc "Returns the list of current nodes including the local one"
   @spec list :: [node()]
@@ -16,14 +21,27 @@ defmodule Gameoflife.Monitoring.NodeMonitor do
   - CPU Number and model
   - Available total memory
   """
-  @spec architecture :: [arch: list(), cpus: [cpu()], memory: memory()]
+  @spec architecture :: architecture()
   def architecture do
     [
       arch: :erlang.system_info(:system_architecture),
       cpus: cpus(),
       memory:
-        Keyword.get(human_readable_bytes(:memsup.get_system_memory_data()), :system_total_memory)
+        :memsup.get_system_memory_data()
+        |> human_readable_bytes()
+        |> Keyword.get(:system_total_memory)
     ]
+  end
+
+  @doc "Returns the architecture of all nodes"
+  @spec architectures :: [{node(), architecture()}]
+  def architectures do
+    list()
+    |> :rpc.multicall(__MODULE__, :architecture, [])
+    |> then(fn
+      {nodes, []} -> Enum.zip(list(), nodes)
+      _ -> []
+    end)
   end
 
   @doc "Returns the list of CPUs"

@@ -23,4 +23,23 @@ defmodule Gameoflife.Monitoring.NodeMonitorTest do
     assert cpus == NodeMonitor.cpus()
     assert memory == {16, :Go} or {17, :Go}
   end
+
+  test "Architecture from all nodes can be retrieved" do
+    architectures = NodeMonitor.architectures()
+
+    assert architectures == [
+             nonode@nohost: [
+               arch: ~c"x86_64-pc-linux-gnu",
+               cpus: NodeMonitor.cpus(),
+               memory: {16, :Go}
+             ]
+           ] or
+             [
+               nonode@nohost: [
+                 arch: ~c"x86_64-pc-linux-gnu",
+                 cpus: NodeMonitor.cpus(),
+                 memory: {17, :Go}
+               ]
+             ]
+  end
 end

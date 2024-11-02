@@ -48,31 +48,41 @@
       <h2 class="mt-12 text-center text-3xl font-extrabold tracking-tight text-gray-900">
         📺 <%= map_size(@users) %> Viewers online
       </h2>
+
+      <ul role="list" class="divide-y divide-gray-200">
+        <%= for {user, metadata} <- @users do %>
+          <li class="py-4 flex">
+            <span class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-gray-500">
+              <span class="text-lg font-medium leading-none text-white"><%= user %></span>
+            </span>
+
+            <%= inspect(metadata) %>
+   
+          </li>
+        <% end %>
+        </ul>
     </div>
     <div class="col-span-1">
       <h2 class="mt-12 text-center text-3xl font-extrabold tracking-tight text-gray-900">
         📺 <%= length(@nodes) %> Erlang nodes
       </h2>
-      <ul role="list" class="divide-y divide-gray-200">
-        <div class="mt-5 text-center">
-          <h2 class="text-xl font-bold tracking-tight text-gray-900">Current node - <%= hd(@nodes) %></h2>
-          <span class="inline-flex items-center mt-2 px-3 py-0.5 rounded-full text-m font-medium bg-green-100 text-green-800">
-            Architecture | <%= @architecture[:arch] %>
-          </span>
-          <span class="inline-flex items-center mt-2 px-3 py-0.5 rounded-full text-m font-medium bg-yellow-100 text-yellow-800">
-            Memory | <%= elem(@architecture[:memory], 0) %>Go
-          </span>
-          <%= for {a, b} <- @architecture[:cpus] do %>
-            <span class="inline-flex items-center mt-2 px-3 py-0.5 rounded-full text-m font-medium bg-purple-100 text-purple-800">
-              CPUs | <%= a %> x <%= b %>
-            </span>
-          <% end %>
-        </div>
-    
-        <%= for node <- tl(@nodes) do %>
+      <ul role="list" class="divide-y divide-gray-200">    
+        <%= for {node, architecture} <- @architectures do %>
           <div class="mt-5 text-center">
             <h2 class="text-xl font-bold tracking-tight text-gray-900"><%= node %></h2>
           </div>
+
+          <span class="inline-flex items-center mt-2 px-3 py-0.5 rounded-full text-m font-medium bg-green-100 text-green-800">
+            <%= architecture[:arch] %>
+          </span>
+          <span class="inline-flex items-center mt-2 px-3 py-0.5 rounded-full text-m font-medium bg-yellow-100 text-yellow-800">
+            <%= elem(architecture[:memory], 0) %>Go
+          </span>
+          <%= for {a, b} <- architecture[:cpus] do %>
+            <span class="inline-flex items-center mt-2 px-3 py-0.5 rounded-full text-m font-medium bg-purple-100 text-purple-800">
+              <%= a %> x <%= b %>
+            </span>
+          <% end %>
         <% end %>
       </ul>
     </div>

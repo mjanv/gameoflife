@@ -20,7 +20,7 @@ defmodule GameoflifeWeb.WorldLive do
     case GameoflifeWeb.Presence.presence("worlds", id) do
       nil ->
         socket
-        |> put_flash(:error, "World #{id} does not exist")
+        |> put_flash(:error, "World #{id} does not exist (yet)")
         |> push_navigate(to: "/")
         |> then(fn socket -> {:ok, socket} end)
 

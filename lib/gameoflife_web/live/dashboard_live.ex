@@ -16,7 +16,7 @@ defmodule GameoflifeWeb.DashboardLive do
     |> assign(:token, Phoenix.Controller.get_csrf_token())
     |> assign(:worlds, GameoflifeWeb.Presence.worlds())
     |> assign(:nodes, Monitoring.NodeMonitor.list())
-    |> assign(:architecture, Monitoring.NodeMonitor.architecture())
+    |> assign(:architectures, Monitoring.NodeMonitor.architectures())
     |> assign(:users, GameoflifeWeb.Presence.users())
     |> then(fn socket -> {:ok, socket} end)
   end
