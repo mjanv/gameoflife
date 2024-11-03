@@ -19,15 +19,15 @@ defmodule Gameoflife.WorldDynamicSupervisor do
   @doc "Start a new world of size NxN with a specified real-time factor"
   @spec new(integer(), integer()) :: {pid(), World.t()}
   def new(n, real_time \\ 1) do
-    world = World.new(n)
-    {:ok, pid} = Gameoflife.WorldSupervisor.start_world(world.id)
-
-    Task.start(fn ->
-      for spec <- World.specs(world, real_time) do
-        DynamicSupervisor.start_child(pid, spec)
-      end
-    end)
-
-    {pid, world}
+    with world <- World.new(n, real_time),
+         {:ok, pid} <- Gameoflife.WorldSupervisor.start_world(world.id),
+         {:ok, _} <-
+           Task.start(fn ->
+             for spec <- World.specs(world) do
+               DynamicSupervisor.start_child(pid, spec)
+             end
+           end) do
+      {pid, world}
+    end
   end
 end

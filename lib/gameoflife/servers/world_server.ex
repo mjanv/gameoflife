@@ -43,4 +43,18 @@ defmodule Gameoflife.WorldServer do
 
     {:noreply, %{world | rows: rows + n, columns: columns + n}}
   end
+
+  @doc "Get the world specification"
+  def spec(%{id: id} = world) do
+    {__MODULE__,
+     [
+       world: %{
+         id: id,
+         rows: world.rows,
+         columns: world.columns,
+         real_time: world.real_time
+       },
+       via: Gameoflife.CellRegistry.via("world-#{id}")
+     ]}
+  end
 end

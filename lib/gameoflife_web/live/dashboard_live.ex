@@ -27,11 +27,18 @@ defmodule GameoflifeWeb.DashboardLive do
         %{"rows" => rows, "real_time" => real_time},
         socket
       ) do
-    {_, world} =
-      Gameoflife.WorldDynamicSupervisor.new(String.to_integer(rows), String.to_integer(real_time))
-
-    GameoflifeWeb.PubSub.broadcast("worlds", world)
-    {:noreply, push_navigate(socket, to: ~p"/world/#{world}")}
+    with {:ok, world} <- Gameoflife.new(String.to_integer(rows), String.to_integer(real_time)),
+         :ok <- GameoflifeWeb.PubSub.broadcast("worlds", world) do
+      socket
+      |> push_navigate(to: ~p"/world/#{world}")
+      |> then(fn socket -> {:noreply, socket} end)
+    else
+      _ ->
+        socket
+        |> put_flash(:error, "World could not be created")
+        |> push_navigate(to: "/")
+        |> then(fn socket -> {:noreply, socket} end)
+    end
   end
 
   def handle_event("stop", _params, socket) do

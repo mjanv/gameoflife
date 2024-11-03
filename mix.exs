@@ -77,7 +77,11 @@ defmodule Gameoflife.MixProject do
       quality: ["format --check-formatted", "credo --strict", "dialyzer"],
       test: ["test"],
       start: ["phx.server"],
-      docs: ["doctor", "docs"]
+      docs: ["doctor", "docs"],
+      commit: [
+        System.cmd("git", ["add", "."]),
+        System.cmd("git", ["commit", "-m", "wip"])
+      ]
     ]
   end
 end

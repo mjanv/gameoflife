@@ -6,36 +6,59 @@ defmodule Gameoflife.World do
 
   """
 
-  alias Gameoflife.{CellServer, ClockServer}
+  alias Gameoflife.Events.{Alive, Crashed, Dead, Tick, Tock}
+  alias Gameoflife.{CellServer, ClockServer, WorldServer}
 
   @type t() :: %__MODULE__{
           id: String.t(),
           columns: integer(),
-          rows: integer()
+          rows: integer(),
+          real_time: integer()
         }
 
-  defstruct [:id, :columns, :rows]
+  defstruct [:id, :columns, :rows, :real_time]
 
   @doc "Create a new world"
-  @spec new(integer()) :: t()
-  def new(n) do
+  @spec new(integer(), integer()) :: t()
+  def new(n, real_time \\ 1) do
     %__MODULE__{
       id: for(_ <- 1..4, into: "", do: <<Enum.at(~c"0123456789", :rand.uniform(10) - 1)>>),
       columns: n,
-      rows: n
+      rows: n,
+      real_time: real_time
     }
   end
 
   @doc "Create an empty grid"
-  @spec empty_grid(t(), atom()) :: %{{integer(), integer()} => atom()}
-  def empty_grid(%__MODULE__{rows: rows, columns: columns}, fill \\ :d) do
+  @spec grid(t(), atom()) :: %{{integer(), integer()} => atom()}
+  def grid(%__MODULE__{rows: rows, columns: columns}, fill \\ :d) do
     Map.new(for i <- 0..(rows - 1), j <- 0..(columns - 1), do: {{i, j}, fill})
   end
 
+  def grid(grid, buffer, event) do
+    case event do
+      %Tock{} -> Map.merge(grid, buffer)
+      _ -> grid
+    end
+  end
+
+  def buffer, do: %{}
+
+  def buffer(buffer, event) do
+    case event do
+      %Tick{} -> buffer
+      %Tock{} -> %{}
+      %Alive{x: x, y: y} -> Map.put(buffer, {x, y}, :a)
+      %Dead{x: x, y: y} -> Map.put(buffer, {x, y}, :d)
+      %Crashed{x: x, y: y} -> Map.put(buffer, {x, y}, :c)
+      _ -> %{}
+    end
+  end
+
   @doc "World cells and clock specification"
-  @spec specs(t(), integer(), (any() -> boolean())) :: [{atom(), Keyword.t()}]
-  def specs(world, real_time, f \\ fn _ -> Enum.random([true, false]) end) do
-    world(world) ++ cells(world, f) ++ clock(world, real_time)
+  @spec specs(t(), (any() -> boolean())) :: [{atom(), Keyword.t()}]
+  def specs(world, f \\ fn _ -> Enum.random([true, false]) end) do
+    [WorldServer.spec(world)] ++ cells(world, f) ++ [ClockServer.spec(world)]
   end
 
   defp cells(%__MODULE__{rows: n, columns: m} = world, f) do
@@ -50,50 +73,7 @@ defmodule Gameoflife.World do
       end
     end
     |> List.flatten()
-    |> Enum.map(fn cell ->
-      Supervisor.child_spec(
-        {Gameoflife.CellServer,
-         [
-           cell: cell,
-           via: Gameoflife.CellRegistry.via(CellServer.name(cell))
-         ]},
-        id: CellServer.name(cell)
-      )
-    end)
-  end
-
-  defp clock(%__MODULE__{id: id} = world, real_time) do
-    clock = %{
-      id: id,
-      world: id,
-      rows: world.rows,
-      columns: world.columns,
-      real_time: real_time
-    }
-
-    [
-      {Gameoflife.ClockServer,
-       [
-         clock: clock,
-         via: Gameoflife.CellRegistry.via(ClockServer.name(clock))
-       ]}
-    ]
-  end
-
-  defp world(%__MODULE__{id: id} = world) do
-    world = %{
-      id: id,
-      rows: world.rows,
-      columns: world.columns
-    }
-
-    [
-      {Gameoflife.WorldServer,
-       [
-         world: world,
-         via: Gameoflife.CellRegistry.via("world-#{id}")
-       ]}
-    ]
+    |> CellServer.specs()
   end
 
   @doc "World cells and clock specification"
@@ -114,19 +94,7 @@ defmodule Gameoflife.World do
         %{w: world.id, x: i, y: world.columns, alive?: f.({i, world.columns})}
       end)
 
-    joins =
-      Enum.map(column ++ row, fn cell ->
-        Supervisor.child_spec(
-          {Gameoflife.CellServer,
-           [
-             cell: cell,
-             via: Gameoflife.CellRegistry.via(CellServer.name(cell))
-           ]},
-          id: CellServer.name(cell)
-        )
-      end)
-
-    %{joins: joins, leaves: []}
+    %{joins: Enum.map(column ++ row, &CellServer.spec/1), leaves: []}
   end
 
   def delta_specs(world, n, f) when n <= 0 do
@@ -140,20 +108,6 @@ defmodule Gameoflife.World do
         %{w: world.id, x: i, y: world.columns - 1, alive?: f.({i, world.columns})}
       end)
 
-    leaves =
-      (column ++ row)
-      |> Enum.reverse()
-      |> Enum.map(fn cell ->
-        Supervisor.child_spec(
-          {Gameoflife.CellServer,
-           [
-             cell: cell,
-             via: Gameoflife.CellRegistry.via(CellServer.name(cell))
-           ]},
-          id: CellServer.name(cell)
-        )
-      end)
-
-    %{joins: [], leaves: leaves}
+    %{joins: [], leaves: Enum.map(Enum.reverse(column ++ row), &CellServer.spec/1)}
   end
 end

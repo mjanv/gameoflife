@@ -59,4 +59,20 @@ defmodule Gameoflife.CellServer do
       end
     )
   end
+
+  def specs([]), do: []
+  def specs([cell | tail]), do: [spec(cell)] ++ specs(tail)
+
+  def spec(%{w: w, x: x, y: y, alive?: _} = cell) do
+    id = name(%{w: w, x: x, y: y})
+
+    Supervisor.child_spec(
+      {__MODULE__,
+       [
+         cell: cell,
+         via: Gameoflife.CellRegistry.via(id)
+       ]},
+      id: id
+    )
+  end
 end

@@ -15,14 +15,14 @@ defmodule Gameoflife.WorldTest do
 
   describe "specs/1" do
     test "generate cells and clock specifications for supervision" do
-      world = %World{id: "abcd", columns: 2, rows: 2}
+      world = %World{id: "abcd", columns: 2, rows: 2, real_time: 1}
 
-      specs = World.specs(world, 1, fn {x, y} -> x == y end)
+      specs = World.specs(world, fn {x, y} -> x == y end)
 
       assert specs == [
                {Gameoflife.WorldServer,
                 [
-                  world: %{id: "abcd", columns: 2, rows: 2},
+                  world: %{id: "abcd", columns: 2, rows: 2, real_time: 1},
                   via: {:via, Horde.Registry, {Gameoflife.CellRegistry, "world-abcd"}}
                 ]},
                cell_spec(0, 0, true, "abcd"),

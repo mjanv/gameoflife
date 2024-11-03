@@ -57,4 +57,18 @@ defmodule Gameoflife.ClockServer do
   @doc "Get the clock name"
   @spec name(map()) :: String.t()
   def name(%{id: id}), do: "clock-#{id}"
+
+  def spec(%{id: id} = world) do
+    {__MODULE__,
+     [
+       clock: %{
+         id: id,
+         world: id,
+         rows: world.rows,
+         columns: world.columns,
+         real_time: world.real_time
+       },
+       via: Gameoflife.CellRegistry.via("clock-#{id}")
+     ]}
+  end
 end

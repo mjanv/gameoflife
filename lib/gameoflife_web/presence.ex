@@ -34,12 +34,12 @@ defmodule GameoflifeWeb.Presence do
   end
 
   @doc "Track a process inside the presence"
-  @spec follow(String.t(), String.t(), map()) :: :ok | :error
+  @spec follow(String.t(), nil | String.t(), map()) :: :ok | :error
   def follow(topic, id, metadata \\ %{}) do
     self()
     |> GameoflifeWeb.Presence.track(
       topic,
-      id,
+      id || id(12),
       %{online_at: DateTime.utc_now()} |> Map.merge(metadata)
     )
     |> case do
@@ -47,4 +47,6 @@ defmodule GameoflifeWeb.Presence do
       {:error, _} -> :error
     end
   end
+
+  defp id(n), do: for(_ <- 1..n, into: "", do: <<Enum.at(~c"0123456789", :rand.uniform(10) - 1)>>)
 end
