@@ -6,11 +6,10 @@ defmodule Gameoflife.Monitoring.WorldMonitor do
   alias Gameoflife.Events.{Alive, Ping, Tick, Tock}
 
   @type counter() :: %{
-    alive: integer(),
-    messages: integer(),
-    size: integer()
-  }
-
+          alive: integer(),
+          messages: integer(),
+          size: integer()
+        }
 
   @doc "Estimate the number of messages emitted in a grid during a tick"
   @spec counter(map(), World.t()) :: counter()
