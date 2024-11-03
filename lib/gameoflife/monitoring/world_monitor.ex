@@ -5,11 +5,13 @@ defmodule Gameoflife.Monitoring.WorldMonitor do
 
   alias Gameoflife.Events.{Alive, Ping, Tick, Tock}
 
-  @spec counter(World.t(), integer()) :: %{
-          alive: integer(),
-          messages: integer(),
-          size: integer()
-        }
+  @type counter() :: %{
+    alive: integer(),
+    messages: integer(),
+    size: integer()
+  }
+
+  @spec counter(World.t(), integer()) ::
   @doc "Estimate the number of messages emitted in a grid during a tick"
   def counter(%{alive: n_alive} = counters, %World{rows: rows, columns: columns}) do
     n_tick = rows * columns
