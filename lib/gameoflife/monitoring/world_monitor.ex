@@ -25,6 +25,8 @@ defmodule Gameoflife.Monitoring.WorldMonitor do
     }
   end
 
+  @doc "Event handler"
+  @spec handle(counter(), map()) :: counter()
   def handle(%{alive: _} = counters, %Tock{}), do: %{counters | alive: 0}
   def handle(%{alive: alive} = counters, %Alive{}), do: %{counters | alive: alive + 1}
   def handle(counters, _), do: counters
