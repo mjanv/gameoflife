@@ -79,8 +79,8 @@ defmodule Gameoflife.MixProject do
       start: ["phx.server"],
       docs: ["doctor", "docs"],
       commit: [
-        System.cmd("git", ["add", "."]),
-        System.cmd("git", ["commit", "-m", "wip"])
+        fn _ -> System.cmd("git", ["add", "."]) end,
+        fn _ -> System.cmd("git", ["commit", "-m", "wip"]) end
       ]
     ]
   end
