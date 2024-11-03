@@ -12,7 +12,7 @@ defmodule Gameoflife.Monitoring.WorldMonitor do
         }
 
   @doc "Estimate the number of messages emitted in a grid during a tick"
-  @spec counter(map(), World.t()) :: counter()
+  @spec counter(counter(), World.t()) :: counter()
   def counter(%{alive: n_alive} = counters, %World{rows: rows, columns: columns}) do
     n_tick = rows * columns
     n_tock = rows * columns
