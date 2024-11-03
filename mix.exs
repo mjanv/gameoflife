@@ -80,7 +80,8 @@ defmodule Gameoflife.MixProject do
       docs: ["doctor", "docs"],
       commit: [
         fn _ -> System.cmd("git", ["add", "."]) end,
-        fn _ -> System.cmd("git", ["commit", "-m", "wip"]) end
+        fn _ -> System.cmd("git", ["commit", "-m", "wip"]) end,
+        fn _ -> System.cmd("git", ["push"]) end
       ]
     ]
   end
